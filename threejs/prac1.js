@@ -1,6 +1,6 @@
 //  SHADER DE VERTICES
 var VSHADER_SOURCE =
-    'attribute vec4 posicion; void main(){ gl_Position = posicion; gl_PointSize = 10.0;}'; 
+    'attribute vec4 posicion; attribute float point_size; void main(){ gl_Position = posicion; gl_PointSize = point_size;}'; 
 
 //  SHADER DE FRAGMENTOS
 var FSHADER_SOURCE = 'void main(){ gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0);}';
@@ -32,27 +32,20 @@ function main()
     gl.clear( gl.COLOR_BUFFER_BIT );
 
     var coordenadas = gl.getAttribLocation( gl.program, 'posicion');
-    canvas.onmousedown = function( evento ){ click( evento, gl, canvas, coordenadas ); };
+    var size = gl.getAttribLocation( gl.program, 'point_size');
+    canvas.onmousedown = function( evento ){ click( evento, gl, canvas, coordenadas, size ); };
 }
 
 var puntos = [];
-function click( evento, gl, canvas, coordenadas ){
-    console.log('CLICK HAS HAPPENED!');
-    puntos.push(0);
-    puntos.push(0);
+function click( evento, gl, canvas, coordenadas, size ){
+    console.log('I HAVE MADE CLOCK');
     var x = evento.clientX;
     var y = evento.clientY;
     var rect = evento.target.getBoundingClientRect();
 
-    console.log(x);
-    console.log(y);
-    console.log(canvas);
-    console.log(rect);
-
     x = ((x -rect.left) - canvas.width/2) * 2/canvas.width;
-    y = (canvas.heigth/2 - (y - rect.top)) * 2/canvas.heigth;
-    console.log('******************************');
-    console.log(y);
+    y = (canvas.height/2 - (y - rect.top)) * 2/canvas.height;
+
     //Guardar coordenadas
     puntos.push(x);
     puntos.push(y);
@@ -60,10 +53,12 @@ function click( evento, gl, canvas, coordenadas ){
     gl.clear( gl.COLOR_BUFFER_BIT );
 
     for( var i = 0; i < puntos.length; i +=2){
-        console.log('I AM GOINT TO PAINT');
-        gl.vertexAttrib3f(coordenadas, puntos[i], puntos[i+1], 0.0);
+        console.log('DRAWING');
+        var x = puntos[i];
+        var y = puntos[i+1];
+        gl.vertexAttrib3f(coordenadas, x, y, 0.0);
+        var dist = Math.sqrt(x*x + y*y);
+        gl.vertexAttrib1f(size, 1/dist*5);
         gl.drawArrays(gl.POINTS,0, 1);
     }
-
-
 }
