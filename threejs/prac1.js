@@ -38,6 +38,8 @@ function main()
 var puntos = [];
 function click( evento, gl, canvas, coordenadas ){
     console.log('CLICK HAS HAPPENED!');
+    puntos.push(0);
+    puntos.push(0);
     var x = evento.clientX;
     var y = evento.clientY;
     var rect = evento.target.getBoundingClientRect();
@@ -45,13 +47,16 @@ function click( evento, gl, canvas, coordenadas ){
     x = ((x -rect.left) - canvas.width/2) * 2/canvas.width;
     y = (canvas.heigth/2 - (y - rect.top)) * 2/ canvas.heigth;
 
+    console.log(x);
+    console.log(y);
     //Guardar coordenadas
     puntos.push(x);
     puntos.push(y);
 
     gl.clear( gl.COLOR_BUFFER_BIT );
 
-    for( var i = 0; i< puntos.length; i +=2){
+    for( var i = 0; i < puntos.length; i +=2){
+        console.log('I AM GOINT TO PAINT');
         gl.vertexAttrib3f(coordenadas, puntos[i], puntos[i+1], 0.0);
         gl.drawArrays(gl.POINTS,0, 1);
     }
