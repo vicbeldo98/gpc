@@ -37,6 +37,7 @@ function main()
 
 var puntos = [];
 function click( evento, gl, canvas, coordenadas ){
+    console.log('CLICK HAS HAPPENED!');
     var x = evento.clientX;
     var y = evento.clientY;
     var rect = evento.target.getBoundingClientRect();
