@@ -44,10 +44,14 @@ function click( evento, gl, canvas, coordenadas ){
     var y = evento.clientY;
     var rect = evento.target.getBoundingClientRect();
 
-    x = ((x -rect.left) - canvas.width/2) * 2/canvas.width;
-    y = (canvas.heigth/2 - (y - rect.top)) * 2/ canvas.heigth;
-
     console.log(x);
+    console.log(y);
+    console.log(canvas);
+    console.log(rect);
+
+    x = ((x -rect.left) - canvas.width/2) * 2/canvas.width;
+    y = (canvas.heigth/2 - (y - rect.top)) * 2/canvas.heigth;
+    console.log('******************************');
     console.log(y);
     //Guardar coordenadas
     puntos.push(x);
