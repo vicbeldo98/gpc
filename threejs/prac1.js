@@ -3,7 +3,7 @@ var VSHADER_SOURCE =
     'attribute vec4 posicion; attribute float point_size; void main(){ gl_Position = posicion; gl_PointSize = point_size;}'; 
 
 //  SHADER DE FRAGMENTOS
-var FSHADER_SOURCE = 'void main(){ gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0);}';
+var FSHADER_SOURCE = 'uniform highp vec3 color; void main(){ gl_FragColor = vec4( color, 1.0);}';
 
 function main()
 {
@@ -31,14 +31,14 @@ function main()
     // Borra el canvas con el color de fondo
     gl.clear( gl.COLOR_BUFFER_BIT );
 
+    var color = gl.getUniformLocation(gl.program, 'color')
     var coordenadas = gl.getAttribLocation( gl.program, 'posicion');
     var size = gl.getAttribLocation( gl.program, 'point_size');
-    canvas.onmousedown = function( evento ){ click( evento, gl, canvas, coordenadas, size ); };
+    canvas.onmousedown = function( evento ){ click( evento, gl, canvas, coordenadas, size, color); };
 }
 
 var puntos = [];
-function click( evento, gl, canvas, coordenadas, size ){
-    console.log('I HAVE MADE CLOCK');
+function click( evento, gl, canvas, coordenadas, size, color ){
     var x = evento.clientX;
     var y = evento.clientY;
     var rect = evento.target.getBoundingClientRect();
@@ -53,12 +53,13 @@ function click( evento, gl, canvas, coordenadas, size ){
     gl.clear( gl.COLOR_BUFFER_BIT );
 
     for( var i = 0; i < puntos.length; i +=2){
-        console.log('DRAWING');
         var x = puntos[i];
         var y = puntos[i+1];
         gl.vertexAttrib3f(coordenadas, x, y, 0.0);
         var dist = Math.sqrt(x*x + y*y);
-        gl.vertexAttrib1f(size, 1/dist*5);
+        var computed_color = 1 - (dist / Math.sqrt(2));
+        gl.uniform3f(color, computed_color, computed_color, computed_color);
+        gl.vertexAttrib1f(size, 1/dist * 5);
         gl.drawArrays(gl.POINTS,0, 1);
     }
 }
