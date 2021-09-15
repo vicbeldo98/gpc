@@ -1,0 +1,30 @@
+<!doctype html>
+<!--
+    Seminario 1: Webgl 
+    Plantilla de carga de paginas en webgl
+-->
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <title>Aplicacion en Webgl</title>
+        <style>
+            body{ background-color: cornflowerblue;margin: 0px;overflow: hidden;}
+            canvas{ background-color: white;}
+        </style>
+    </head>
+    <body onload="main()">
+        <div style = "text-align:center;">
+            <h1>P1 GPC: Dibujar puntos más claros cuanto más cerca del centro y unidos por líneas</h1>
+            <h2>Alumna: Victoria Beltrán Domínguez</h2>
+            <canvas id="canvas" height="800" width="800"></canvas> 
+        </div>
+        
+        <!-- scripts de libreria -->
+        <script src="lib/webgl-utils.js"></script>
+        <script src="lib/webgl-debug.js"></script>
+        <script src="lib/cuon-matrix.js"></script>
+        <script src="lib/cuon-utils.js"></script>
+        <!-- mis scripts -->
+        <script src="js/prac1.js"></script>
+    </body>
+</html>
