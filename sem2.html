@@ -6,25 +6,118 @@
 <html lang="es">
     <head>
         <meta charset="utf-8">
-        <title>Aplicacion en Webgl</title>
+        <title>My first Three.js app</title>
         <style>
-            body{ background-color: cornflowerblue;margin: 0px;overflow: hidden;}
-            canvas{ background-color: white;}
+            canvas{ width:100%; height:100%; background-color: white;}
         </style>
     </head>
     <body onload="main()">
-        <div style = "text-align:center;">
-            <h1>P1 GPC: Dibujar puntos más claros cuanto más cerca del centro y unidos por líneas</h1>
-            <h2>Alumna: Victoria Beltrán Domínguez</h2>
-            <canvas id="canvas" height="800" width="800"></canvas> 
-        </div>
-        
-        <!-- scripts de libreria -->
-        <script src="lib/webgl-utils.js"></script>
-        <script src="lib/webgl-debug.js"></script>
-        <script src="lib/cuon-matrix.js"></script>
-        <script src="lib/cuon-utils.js"></script>
-        <!-- mis scripts -->
-        <script src="js/prac1.js"></script>
+        <script src="lib/three.min_r96.js"></script>
+
+        <script>
+            var renderer, scene, camera;
+
+            function init(){
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.setClearColor ( new THREE.Color(0x0000AA), 1.0);
+                document.body.appendChild( renderer.domElement);
+
+                scene = new THREE.Scene();
+
+                var aspectRatio = window.innerWidth / window.innerHeight;
+
+                // PerspectiveCamera(angulo vision, width y heigth pantalla, punto más cercano, punto más lejano)
+                camera = new THREE.PerspectiveCamera(100, aspectRatio, 0.1, 10000);
+                camera.position.set(1,1,2);
+            }
+
+            function loadScene(){
+                var geometria = new THREE.TetrahedronGeometry();
+                var material = new THREE.MeshBasicMaterial({color:0xFF0000, wireframe: true});
+                var tetraedro = new THREE.Mesh(geometria, material);
+
+                scene.add(tetraedro);
+            }
+            var antes = Date.now();
+            var angulo = Math.PI/6;
+            function update(){
+                /**var ahora = Date.now();
+                angulo += Math.PI/30 * (ahora - antes)/1000;
+                antes = ahora;
+                paraguas.rotation.y = angulo;*/
+            }
+
+            function render(){
+                requestAnimationFrame( render );
+                update();
+                renderer.render( scene, camera );
+            }
+
+            function loadRotationalUmbrella(){
+                //Material de alambres rojos
+                var material = new THREE.MeshBasicMaterial({color:"red", wireframe:true});
+
+                //Objeto de tela con modelmatrix explicita
+                var ms = new THREE.Matrix4();
+                var mt = new THREE.Matrix4();
+                var tela = new THREE.Mesh( new THREE.CylinderGeometry(0.0, 1.0,1.0), material);
+                tela.matrixAutoUpdate = false;
+
+                mt.makeTranslation(0,1.5,0);
+                ms.makeScale(2,0.5,2);
+                tela.matrix = mt.multiply(ms);
+
+
+                //Objeto bastón con modelmatrix implícita
+                var baston = new THREE.Mesh( new THREE.CylinderGeometry(1,1,1), material);
+                baston.position.y = 0.5;
+                baston.scale.set(0.05,3,0.05);
+
+                //Objeto mango con modelmatrix implícita
+                var mango = new THREE.Mesh(new THREE.CubeGeometry(1,1,1), material);
+                mango.scale.set(0.2,0.4,0.2);
+                mango.position.set(0,-1,0);
+
+                //Objeto contenedor paraguas con modelmatrix implicita
+                paraguas = new THREE.Object3D();
+                paraguas.add(tela);
+                paraguas.add(baston);
+                paraguas.add(mango);
+                paraguas.position.set(1.6, 0, 0);
+                paraguas.rotation.x = angulo;
+
+                scene.add(paraguas);
+            }
+
+            function loadMesh(){
+                //Importar modelo
+                var pointLight = new THREE.PointLight(0xffffff, 0.9);
+                pointLight.position.set(1,3,1);
+                scene.add( pointLight, 2);
+
+                var loader = new THREE.ObjectLoader();
+                loader.load('models/soldado/soldado.json',
+                    function (obj)
+                    {
+                        var tx = new THREE.ImageUtils.loadTexture('models/soldado/soldado.png');
+                        tx.minFilter = tx.magFilter = THREE.LinearFilter;
+                        obj.traverse( function (child)
+                                        {
+                                            if( child instanceof THREE.Mesh ){
+                                                child.material.setValues({ color:'white', emissive:0x444444, map:tx});
+                                            }
+                                        });
+                                obj.name = 'soldado';
+                                obj.position.set(0,-1,0);
+                                scene.add(obj);
+                    });
+                scene.add(new THREE.AxisHelper(1));
+            }
+
+            init();
+            loadMesh();
+            render();
+        </script>
     </body>
 </html>

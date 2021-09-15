@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <title>My first Three.js app</title>
+        <style>
+            canvas{ width:100%; height:100%; background-color: white;}
+        </style>
+    </head>
+    <body>
+        <script src="lib/three.min_r96.js"></script>
+
+        <script>
+            var renderer, scene, camera;
+
+            function init(){
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.setClearColor ( new THREE.Color(0x0000AA), 1.0);
+                document.body.appendChild( renderer.domElement);
+
+                scene = new THREE.Scene();
+
+                var aspectRatio = window.innerWidth / window.innerHeight;
+
+                // PerspectiveCamera(angulo vision, width y heigth pantalla, punto más cercano, punto más lejano)
+                camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
+                camera.lookAt(0,0,0);
+                camera.position.set(-10,100,250);
+            }
+
+            function loadScene(){
+
+                //  Creando el suelo
+                var geometria = new THREE.PlaneGeometry(1000,1000,10,10);
+                var yellow_floor = new THREE.MeshBasicMaterial({color:0x000000, wireframe: true});
+                var suelo = new THREE.Mesh(geometria, yellow_floor);
+                suelo.position.set(0, 0, 0);
+                suelo.rotation.x = 90;
+
+                // Creando la base del robot
+                const cilindro = new THREE.CylinderGeometry( 50, 50, 15, 40 );
+                const material = new THREE.MeshBasicMaterial( {color: 0xffffff, wireframe: true} );
+                const base = new THREE.Mesh( cilindro, material );
+                scene.add( base );
+                /*baston.position.y = 0.5;
+                baston.scale.set(0.05,3,0.05);*/
+
+
+                scene.add(suelo);
+                //scene.add(base)
+
+                //  Añadir ejes x y  z
+                var helper = new THREE.AxesHelper();
+                scene.add(helper);
+            }
+
+            function update(){
+            }
+
+            function render(){
+                requestAnimationFrame( render );
+                update();
+                renderer.render( scene, camera );
+            }
+
+            init();
+            loadScene();
+            render();
+        </script>
+    </body>
+</html>
