@@ -5,36 +5,53 @@ function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.setClearColor ( new THREE.Color(0x0000AA), 1.0);
     document.body.appendChild( renderer.domElement);
+    renderer.autoClear = false;
 
     scene = new THREE.Scene();
 
     var aspectRatio = window.innerWidth / window.innerHeight;
 
+    setMiniCamera();
+
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(50,50,50);
-    camera.lookAt(0,0,0);
+    camera.position.set(-10,200,250);
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
     cameraControls.target.set(0,0,0);
 
-    var l = b = -4;
-    var r = t = -l;
-    mini_camera = new THREE.OrthographicCamera(l, r, t / aspectRatio, b / aspectRatio, -20, 20);
-    mini_camera.position.set(0,250,0);
-    mini_camera.lookAt(0,0,0);
-
     window.addEventListener('resize', updateAspectRatio);
 
-    scene.add(camera);
-    scene.add(mini_camera);
-    
+    scene.add(camera);    
 
+}
+
+function setMiniCamera(){
+    var L = 120;
+    var camaraOrtografica;
+
+    // VIEWPORT MÁS ANCHO QUE ALTO
+    camaraOrtografica = new THREE.OrthographicCamera(
+        -L -50, L +50, L +50 , -L -50, 100,200
+    );
+    planta = camaraOrtografica.clone();
+    planta.position.set(0,L,0);
+    planta.lookAt(0,0,0);
+    planta.up = (0,0,-1);
+
+    scene.add(planta);
 }
 
 function updateAspectRatio(){
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect =window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
+
+    planta.left = -L ;
+    planta.right = L;
+    planta.bottom = -L ;
+    planta.top = L;
+
+    planta.updateProjectionMatrix();
 }
 
 function loadScene(){
@@ -201,13 +218,19 @@ function render(){
     requestAnimationFrame(render);
     update();
 
-    renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+    renderer.clear();
+    //CAMARA GENERAL
+    renderer.setViewport (0,0,window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
 
+    if(aspectRatio > 1){
+        renderer.setViewport (0,0,window.innerHeight/4, window.innerHeight/4);
+    }else{
+        renderer.setViewport (0,0,window.innerWidth/4, window.innerWidth/4);
+    }
+    renderer.render(scene, planta);
 
-    // Minicam
-    renderer.setViewport(0, 0, window.innerWidth/4, window.innerHeight/4);
-    renderer.render(scene, mini_camera);
+
 }
 
 init();
