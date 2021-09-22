@@ -223,6 +223,8 @@ function render(){
     renderer.setViewport (0,0,window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
 
+    var aspectRatio = window.innerWidth / window.innerHeight;
+
     if(aspectRatio > 1){
         renderer.setViewport (0,0,window.innerHeight/4, window.innerHeight/4);
     }else{
