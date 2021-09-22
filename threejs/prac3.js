@@ -1,4 +1,4 @@
-var renderer, scene, camera, robot;
+var renderer, scene, camera, robot, cameraControls;
 
 function init(){
     renderer = new THREE.WebGLRenderer();
@@ -15,6 +15,9 @@ function init(){
     camera.position.set(0,0,10);
     camera.lookAt(0,0,0);
     //camera.rotateZ(30*Math.PI/180);
+
+    cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+    cameraControls.target.set(0,0,0);
 
     window.addEventListener('resize', updateAspectRatio);
 
@@ -182,6 +185,8 @@ function loadScene(){
 }
 
 function update(){
+    //Cambios entre frames
+    cameraControls.update();
 }
 
 function render(){
