@@ -47,7 +47,7 @@ function setCameras(ar){
     planta.up = (0,0,-1);
 
     perfil = camaraOrtografica.clone();
-    perfil.position.set(0,0,L);
+    perfil.position.set(L,0,0);
     perfil.lookAt(0,0,0);
 
     scene.add(alzado);
@@ -81,7 +81,53 @@ function init(){
     
     //Captura de eventos
     window.addEventListener('resize', updateAspectRatio);
+    renderer.domElement.addEventListener('dblclick', rotateCube);
     
+}
+
+function rotateCube( event ){
+    // Capturar coordenadas de click
+    var x = event.clientX;
+    var y = event.clientY;
+
+    //  Zona click
+    var derecha = false;
+    var abajo = false;
+    var cam = null;
+
+    if( x > window.innerWidth/2 ) {
+        derecha = true;
+        x -= window.innerWidth/2;
+    }
+
+    if (y > window.innerHeight/2){
+        abajo = true;
+        y -= window.innerHeight/2;
+    }
+
+    if ( derecha ){
+        if (abajo) cam = camera;
+        else cam = perfil;
+    } else{
+        if (abajo) cam = planta;
+        else cam = alzado;
+    }
+
+    // cam es la camara que recibe el click
+
+    // normaliza a cuadrado 2x2
+    x = ( x * 4 / window.innerWidth) -1;
+    y = -( y* 4/window.innerHeight) +1;
+
+    // Construir el rayo 
+    var rayo = new THREE.Raycaster();
+    rayo.setFromCamera(new THREE.Vector2(x,y), cam);
+
+    // TRUE INDICA QUE LO HAGA EN PROFUNDIDAD, QUE RECORRA TODA LA ESCENA
+    var intersecciones = rayo.intersectObjects( scene.children, true);
+    if (intersecciones.length > 0) intersecciones[0].object.rotation.x += Math.PI/8;
+
+
 }
 
 function updateAspectRatio(){
