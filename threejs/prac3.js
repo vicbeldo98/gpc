@@ -1,4 +1,4 @@
-var renderer, scene, camera, robot, cameraControls;
+var renderer, scene, camera, mini_camera, robot, cameraControls;
 
 function init(){
     renderer = new THREE.WebGLRenderer();
@@ -10,7 +10,6 @@ function init(){
 
     var aspectRatio = window.innerWidth / window.innerHeight;
 
-    // PerspectiveCamera(angulo vision, width y heigth pantalla, punto más cercano, punto más lejano)
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
     camera.position.set(0,0,10);
     camera.lookAt(0,0,0);
@@ -18,6 +17,11 @@ function init(){
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
     cameraControls.target.set(0,0,0);
+
+    mini_camera = new THREE.OrthographicCamera(window.innerWidth/4,window.innerHeight/4, window.innerWidth/4, window.innerHeight/4,0.1,1000);
+    mini_camera.position.set(0,250,0);
+    mini_camera.lookAt(0,0,0);
+    mini_camera.up(0,1,0);
 
     window.addEventListener('resize', updateAspectRatio);
 
@@ -201,7 +205,7 @@ function render(){
 
     // Minicam
     renderer.setViewport(0, 0, window.innerHeight/4, window.innerHeight/4);
-    renderer.render(scene, camera);
+    renderer.render(scene, mini_camera);
 }
 
 init();
