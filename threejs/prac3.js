@@ -11,19 +11,23 @@ function init(){
     var aspectRatio = window.innerWidth / window.innerHeight;
 
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(0,0,10);
+    camera.position.set(50,50,50);
     camera.lookAt(0,0,0);
-    //camera.rotateZ(30*Math.PI/180);
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
     cameraControls.target.set(0,0,0);
 
-    mini_camera = new THREE.OrthographicCamera(window.innerWidth/4,window.innerHeight/4, window.innerWidth/4, window.innerHeight/4,0.1,1000);
+    var l = b = -4;
+    var r = t = -l;
+    mini_camera = new THREE.OrthographicCamera(l, r, t / aspectRatio, b / aspectRatio, -20, 20);
     mini_camera.position.set(0,250,0);
     mini_camera.lookAt(0,0,0);
-    mini_camera.up(0,1,0);
 
     window.addEventListener('resize', updateAspectRatio);
+
+    scene.add(camera);
+    scene.add(mini_camera);
+    
 
 }
 
@@ -197,14 +201,12 @@ function render(){
     requestAnimationFrame(render);
     update();
 
-    renderer.clear();
-
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
 
 
     // Minicam
-    renderer.setViewport(0, 0, window.innerHeight/4, window.innerHeight/4);
+    renderer.setViewport(0, 0, window.innerWidth/4, window.innerHeight/4);
     renderer.render(scene, mini_camera);
 }
 
