@@ -12,8 +12,18 @@ function init(){
 
     // PerspectiveCamera(angulo vision, width y heigth pantalla, punto más cercano, punto más lejano)
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(50,250,150);
-    camera.lookAt(0,100,0);
+    camera.position.set(0,0,10);
+    camera.lookAt(0,0,0);
+    //camera.rotateZ(30*Math.PI/180);
+
+    window.addEventListener('resize', updateAspectRatio);
+
+}
+
+function updateAspectRatio(){
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect =window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
 }
 
 function loadScene(){
