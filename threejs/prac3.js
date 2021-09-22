@@ -190,9 +190,18 @@ function update(){
 }
 
 function render(){
-    requestAnimationFrame( render );
+    requestAnimationFrame(render);
     update();
-    renderer.render( scene, camera );
+
+    renderer.clear();
+
+    renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+    renderer.render(scene, camera);
+
+
+    // Minicam
+    renderer.setViewport(0, 0, window.innerHeight/4, window.innerHeight/4);
+    renderer.render(scene, camera);
 }
 
 init();
