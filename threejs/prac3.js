@@ -14,7 +14,7 @@ function init(){
     setMiniCamera();
 
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(-10,200,250);
+    camera.position.set(25,300,200);
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
     cameraControls.target.set(0,0,0);
@@ -31,10 +31,10 @@ function setMiniCamera(){
 
     // VIEWPORT MÁS ANCHO QUE ALTO
     camaraOrtografica = new THREE.OrthographicCamera(
-        -L -50, L +50, L +50 , -L -50, 100,200
+        -L, L, L, -L, 0,300
     );
     planta = camaraOrtografica.clone();
-    planta.position.set(0,L,0);
+    planta.position.set(0,250,0);
     planta.lookAt(0,0,0);
     planta.up = (0,0,-1);
 
