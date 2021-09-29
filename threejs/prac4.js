@@ -1,8 +1,11 @@
 var renderer, scene, camera, mini_camera, robot, cameraControls;
 
-var base, brazo_inferior, brazo_superior, pinzaDe, pinzaIz, separaPinza;
+var base, brazo, antebrazo, mano;
 
-var L=100;
+var pinzaIz;
+var pinzaDe;
+
+var L=120;
 
 // GUI
 var effectController;
@@ -28,12 +31,30 @@ function init(){
 
     window.addEventListener('resize', updateAspectRatio);
 
+    // Controles para conseguir movimiento del robot sobre el plano del suelo con las flechas del teclado.
+    keyboard = new THREEx.KeyboardState(renderer.domElement);
+    renderer.domElement.setAttribute("tabIndex", "0");
+    renderer.domElement.focus();
+    keyboard.domElement.addEventListener('keydown', function (event) {
+        if (keyboard.eventMatches(event, 'a')) {
+            robot.position.x -= 10;
+        }
+        if (keyboard.eventMatches(event, 'd')) {
+            robot.position.x += 10;
+        }
+        if (keyboard.eventMatches(event, 'w')) {
+            robot.position.z -= 10;
+        }
+        if (keyboard.eventMatches(event, 's')) {
+            robot.position.z += 10;
+        }
+    })
+
     scene.add(camera);    
 
 }
 
 function setMiniCamera(){
-    var L = 120;
     var camaraOrtografica;
 
     // VIEWPORT MÁS ANCHO QUE ALTO
@@ -66,9 +87,11 @@ function loadScene(){
 
     var material = new THREE.MeshBasicMaterial( {color: 0xffffff, wireframe: true} );
 
+    var floor_material = new THREE.MeshBasicMaterial( {color: 0xffffff, wireframe: true} );
+
     //  Creando el suelo
     var geometria = new THREE.PlaneGeometry(1000,1000,10,10);
-    var suelo = new THREE.Mesh(geometria, material);
+    var suelo = new THREE.Mesh(geometria, floor_material);
     suelo.position.set(0, 0, 0);
     suelo.rotation.x = Math.PI/2;
     scene.add(suelo);
@@ -84,29 +107,29 @@ function loadScene(){
     brazo = new THREE.Object3D();
     //parte inferior del brazo
     var cilindro = new THREE.CylinderGeometry( 20, 20, 18, 40 );
-    brazo_inferior = new THREE.Mesh( cilindro, material );
-    brazo_inferior.rotation.x = Math.PI/2;
-    brazo.add( brazo_inferior );
+    eje = new THREE.Mesh( cilindro, material );
+    eje.rotation.x = Math.PI/2;
+    brazo.add( eje );
 
     //parte intermedia del brazo
     var cubo = new THREE.CubeGeometry( 18, 120, 12);
-    var brazo_intermedio = new THREE.Mesh( cubo, material );
-    brazo_intermedio.position.set(0,60,0);
-    brazo.add( brazo_intermedio );
+    var esparrago = new THREE.Mesh( cubo, material );
+    esparrago.position.set(0,60,0);
+    brazo.add( esparrago );
 
     //parte superior del brazo
     var esfera = new THREE.SphereGeometry( 20, 15, 15);
-    brazo_superior = new THREE.Mesh( esfera, material );
-    brazo_superior.position.set(0,120,0);
-    brazo.add( brazo_superior );
+    rotula = new THREE.Mesh( esfera, material );
+    rotula.position.set(0,120,0);
+    brazo.add( rotula );
 
     // Creando el antebrazo
     antebrazo = new THREE.Object3D();
     //parte inferior del antebrazo
     var cilindro = new THREE.CylinderGeometry( 22, 22, 6, 40 );
-    var antebrazo_inferior = new THREE.Mesh( cilindro, material );
-    antebrazo_inferior.position.set(0,120,0);
-    antebrazo.add( antebrazo_inferior );
+    var disco = new THREE.Mesh( cilindro, material );
+    disco.position.set(0,120,0);
+    antebrazo.add( disco );
 
     //partes intermedias del antebrazo
     //nervio 1
@@ -133,17 +156,16 @@ function loadScene(){
     nervio4.position.set(0,160,-8);
     antebrazo.add( nervio4 );
 
-    var mano = new THREE.Object3D();
+    mano = new THREE.Object3D();
 
     //parte superior del antebrazo
     var cilindro = new THREE.CylinderGeometry( 15, 15, 40, 40 );
-    var antebrazo_superior = new THREE.Mesh( cilindro, material );
-    antebrazo_superior.position.set(0,200,0);
-    antebrazo_superior.rotation.x = Math.PI/2;
-    antebrazo.add( antebrazo_superior );
+    var palma = new THREE.Mesh( cilindro, material );
+    palma.position.set(0,200,0);
+    palma.rotation.x = Math.PI/2;
+    mano.add( palma );
 
     // Añadir pinzas del robot
-    var mano = new THREE.Object3D();
     var geom = new THREE.Geometry();
     var vertices = [
         0,0,0,
@@ -216,24 +238,6 @@ function loadScene(){
     scene.add(robot);
 }
 
-function update(){
-    //  Cambios entre frames
-    cameraControls.update();
-
-    //  Obtener el giro
-    var giroBase = effectController.giroBase;
-    var giroBrazo = effectController.giroBrazo;
-    var giroAntY = effectController.giroAntebrazoY;
-    var giroAntZ = effectController.giroAntebrazoZ;
-    var giroPinza = effectController.giroPinza;
-    var sepPinza = effectController.separacionPinza;
-
-    // Angulo de rotación
-    base.rotation.y = giroBase* Math.PI*2;
-    //eje.rotation.y = angulo/5;
-
-}
-
 function setupGui(){
     effectController = {
         giroBase: 0.0,
@@ -241,7 +245,8 @@ function setupGui(){
         giroAntebrazoY: 0.0,
         giroAntebrazoZ: 0.0,
         giroPinza: 0.0,
-        separacionPinza: 15.0
+        separacionPinza: 15.0,
+        colorMaterial: "rgb(255,255,255)"
     }
 
     var gui = new dat.GUI();
@@ -252,6 +257,41 @@ function setupGui(){
     carpeta.add(effectController, "giroAntebrazoZ", -90, 90, 1).name("Giro Antebrazo Z");
     carpeta.add(effectController, "giroPinza", -40, 220, 1).name("Giro Pinza");
     carpeta.add(effectController, "separacionPinza", 0, 15, 1).name("Separación Pinza");
+    var sensorColor = carpeta.addColor(effectController, "colorMaterial").name("Color dibujo");
+
+    sensorColor.onChange(
+        function(color){
+            robot.traverse(function(hijo){
+                if(hijo instanceof THREE.Mesh)
+                    hijo.material.color = new THREE.Color(color);    
+            })
+        }
+    );
+
+}
+
+function update(){
+    //  Cambios entre frames
+    cameraControls.update();
+
+    // Giro de la base sobre su eje vertical (Y)
+    base.rotation.y = effectController.giroBase * Math.PI / 180;
+
+    // Giro del brazo sobre el eje Z de la pieza ‘eje’)
+    brazo.rotation.z = effectController.giroBrazo * Math.PI / 180;
+
+    // Giro del antebrazo sobre el eje Y de la pieza ‘rotula’)
+    antebrazo.rotation.y = effectController.giroAntebrazoY * Math.PI / 180;
+
+    // Giro del antebrazo sobre el eje Z de la pieza ‘rotula’)
+    antebrazo.rotation.z = effectController.giroAntebrazoZ * Math.PI / 180;
+
+    // Rotación de la pinza sobre el eje Z de la mano)
+    mano.rotation.z = effectController.giroPinza * Math.PI / 180;
+
+    // Apertura/Cierre de la pinza sobre el eje Z de la mano)
+    pinzaIz.position.z = effectController.separacionPinza + 3
+    pinzaDe.position.z = -effectController.separacionPinza - 3
 
 }
 
