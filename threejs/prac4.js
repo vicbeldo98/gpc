@@ -94,14 +94,11 @@ function loadScene(){
     var suelo = new THREE.Mesh(geometria, floor_material);
     suelo.position.set(0, 0, 0);
     suelo.rotation.x = Math.PI/2;
-    scene.add(suelo);
 
     // Creando la base del robot
     base = new THREE.Object3D();
     var cilindro = new THREE.CylinderGeometry( 50, 50, 15, 40 );
     var base_obj = new THREE.Mesh( cilindro, material );
-    base.add(base_obj);
-
 
     //Creando el brazo
     brazo = new THREE.Object3D();
@@ -109,61 +106,54 @@ function loadScene(){
     var cilindro = new THREE.CylinderGeometry( 20, 20, 18, 40 );
     eje = new THREE.Mesh( cilindro, material );
     eje.rotation.x = Math.PI/2;
-    brazo.add( eje );
 
     //parte intermedia del brazo
     var cubo = new THREE.CubeGeometry( 18, 120, 12);
     var esparrago = new THREE.Mesh( cubo, material );
     esparrago.position.set(0,60,0);
-    brazo.add( esparrago );
 
     //parte superior del brazo
     var esfera = new THREE.SphereGeometry( 20, 15, 15);
     rotula = new THREE.Mesh( esfera, material );
     rotula.position.set(0,120,0);
-    brazo.add( rotula );
 
     // Creando el antebrazo
     antebrazo = new THREE.Object3D();
+    antebrazo.position.y = 120;
     //parte inferior del antebrazo
     var cilindro = new THREE.CylinderGeometry( 22, 22, 6, 40 );
     var disco = new THREE.Mesh( cilindro, material );
-    disco.position.set(0,120,0);
-    antebrazo.add( disco );
+    disco.position.set(0,0,0);
 
     //partes intermedias del antebrazo
     //nervio 1
     var cubo = new THREE.CubeGeometry(4, 80, 4);
     var nervio1 = new THREE.Mesh( cubo, material);
-    nervio1.position.set(8,160,0);
-    antebrazo.add( nervio1 );
+    nervio1.position.set(8,40,0);
 
     //nervio 2
     var cubo = new THREE.CubeGeometry(4, 80, 4);
     var nervio2 = new THREE.Mesh( cubo, material );
-    nervio2.position.set(-8,160,0);
-    antebrazo.add( nervio2 );
+    nervio2.position.set(-8,40,0);
 
     //nervio 3
     var cubo = new THREE.CubeGeometry(4, 80, 4);
     var nervio3 = new THREE.Mesh( cubo, material );
-    nervio3.position.set(0,160,8);
-    antebrazo.add( nervio3 );
+    nervio3.position.set(0,40,8);
 
     //nervio 4
     var cubo = new THREE.CubeGeometry(4, 80, 4);
     var nervio4 = new THREE.Mesh( cubo, material );
-    nervio4.position.set(0,160,-8);
-    antebrazo.add( nervio4 );
+    nervio4.position.set(0,40,-8);
 
     mano = new THREE.Object3D();
+    mano.position.set(0,80,0);
 
     //parte superior del antebrazo
     var cilindro = new THREE.CylinderGeometry( 15, 15, 40, 40 );
     var palma = new THREE.Mesh( cilindro, material );
-    palma.position.set(0,200,0);
+    palma.position.set(0,0,0);
     palma.rotation.x = Math.PI/2;
-    mano.add( palma );
 
     // Añadir pinzas del robot
     var geom = new THREE.Geometry();
@@ -218,24 +208,36 @@ function loadScene(){
     }
 
     pinzaIz = new THREE.Mesh( geom, material);
-    pinzaIz.position.set(0,190,18);
+    pinzaIz.position.set(0,-10,18);
     pinzaIz.rotation.y = Math.PI/2;
-    mano.add(pinzaIz);
 
     pinzaDe = new THREE.Mesh( geom, material);
-    pinzaDe.position.set(0,190,-18);
+    pinzaDe.position.set(0,-10,-18);
     pinzaDe.rotation.y = Math.PI/2;
-    mano.add(pinzaDe);
 
     //  Añadir ejes x y  z
     var helper = new THREE.AxesHelper(1000);
     scene.add(helper);
 
-    antebrazo.add(mano);
-    brazo.add(antebrazo);
-    base.add(brazo);
-    robot.add(base);
+    //añadimos cada objeto a la escena como dicta el grafo de escena
+    scene.add(suelo);
     scene.add(robot);
+    robot.add(base);
+    base.add(base_obj);
+    base.add(brazo);
+    brazo.add(esparrago);
+    brazo.add(rotula);
+    brazo.add(antebrazo);
+    brazo.add(eje);
+    antebrazo.add(disco);
+    antebrazo.add(nervio1);
+    antebrazo.add(nervio2);
+    antebrazo.add(nervio3);
+    antebrazo.add(nervio4);
+    antebrazo.add(mano);
+    mano.add(palma);
+    mano.add(pinzaIz);
+    mano.add(pinzaDe);
 }
 
 function setupGui(){
