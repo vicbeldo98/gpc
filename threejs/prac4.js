@@ -219,7 +219,7 @@ function loadScene(){
     var helper = new THREE.AxesHelper(1000);
     scene.add(helper);
 
-    //añadimos cada objeto a la escena como dicta el grafo de escena
+    // Añadir objetos al grafo de escena
     scene.add(suelo);
     scene.add(robot);
     robot.add(base);
