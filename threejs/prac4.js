@@ -1,5 +1,12 @@
 var renderer, scene, camera, mini_camera, robot, cameraControls;
 
+var base, brazo_inferior, brazo_superior, pinzaDe, pinzaIz, separaPinza;
+
+var L=100;
+
+// GUI
+var effectController;
+
 function init(){
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -77,7 +84,7 @@ function loadScene(){
     brazo = new THREE.Object3D();
     //parte inferior del brazo
     var cilindro = new THREE.CylinderGeometry( 20, 20, 18, 40 );
-    var brazo_inferior = new THREE.Mesh( cilindro, material );
+    brazo_inferior = new THREE.Mesh( cilindro, material );
     brazo_inferior.rotation.x = Math.PI/2;
     brazo.add( brazo_inferior );
 
@@ -89,7 +96,7 @@ function loadScene(){
 
     //parte superior del brazo
     var esfera = new THREE.SphereGeometry( 20, 15, 15);
-    var brazo_superior = new THREE.Mesh( esfera, material );
+    brazo_superior = new THREE.Mesh( esfera, material );
     brazo_superior.position.set(0,120,0);
     brazo.add( brazo_superior );
 
@@ -210,8 +217,42 @@ function loadScene(){
 }
 
 function update(){
-    //Cambios entre frames
+    //  Cambios entre frames
     cameraControls.update();
+
+    //  Obtener el giro
+    var giroBase = effectController.giroBase;
+    var giroBrazo = effectController.giroBrazo;
+    var giroAntY = effectController.giroAntebrazoY;
+    var giroAntZ = effectController.giroAntebrazoZ;
+    var giroPinza = effectController.giroPinza;
+    var sepPinza = effectController.separacionPinza;
+
+    // Angulo de rotación
+    base.rotation.y = giroBase* Math.PI*2;
+    //eje.rotation.y = angulo/5;
+
+}
+
+function setupGui(){
+    effectController = {
+        giroBase: 0.0,
+        giroBrazo: 0.0,
+        giroAntebrazoY: 0.0,
+        giroAntebrazoZ: 0.0,
+        giroPinza: 0.0,
+        separacionPinza: 15.0
+    }
+
+    var gui = new dat.GUI();
+    var carpeta = gui.addFolder("Control Robot");
+    carpeta.add(effectController, "giroBase", -180, 180, 1).name("Giro Base");
+    carpeta.add(effectController, "giroBrazo", -45, 45, 1).name("Giro Brazo");
+    carpeta.add(effectController, "giroAntebrazoY", -180, 180, 1).name("Giro Antebrazo Y");
+    carpeta.add(effectController, "giroAntebrazoZ", -90, 90, 1).name("Giro Antebrazo Z");
+    carpeta.add(effectController, "giroPinza", -40, 220, 1).name("Giro Pinza");
+    carpeta.add(effectController, "separacionPinza", 0, 15, 1).name("Separación Pinza");
+
 }
 
 function render(){
@@ -231,10 +272,9 @@ function render(){
         renderer.setViewport (0,0,window.innerWidth/4, window.innerWidth/4);
     }
     renderer.render(scene, planta);
-
-
 }
 
 init();
+setupGui();
 loadScene();
 render();
