@@ -28,7 +28,7 @@ function init(){
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
     cameraControls.target.set(0,0,0);
-
+    //cameraControls.enableKeys = false;
     window.addEventListener('resize', updateAspectRatio);
 
     // Controles para conseguir movimiento del robot sobre el plano del suelo con las flechas del teclado.
@@ -48,10 +48,7 @@ function init(){
         if (keyboard.eventMatches(event, 's')) {
             robot.position.z += 10;
         }
-    })
-
-    scene.add(camera);    
-
+    });
 }
 
 function setMiniCamera(){
@@ -273,9 +270,6 @@ function setupGui(){
 }
 
 function update(){
-    //  Cambios entre frames
-    cameraControls.update();
-
     // Giro de la base sobre su eje vertical (Y)
     base.rotation.y = effectController.giroBase * Math.PI / 180;
 
@@ -294,6 +288,11 @@ function update(){
     // Apertura/Cierre de la pinza sobre el eje Z de la mano)
     pinzaIz.position.z = effectController.separacionPinza + 4;
     pinzaDe.position.z = -effectController.separacionPinza - 1;
+
+    cameraControls.update();
+
+    //PREGUNTAR A ROBERTO VIVÓ POR QUÉ SI NO PONGO ESTA LÍNEA PIERDO EL FOCUS DEL TECLADO
+    renderer.domElement.focus();
 
 }
 
