@@ -208,11 +208,11 @@ function loadScene(){
     }
 
     pinzaIz = new THREE.Mesh( geom, material);
-    pinzaIz.position.set(0,-10,18);
+    pinzaIz.position.set(0,-10,19);
     pinzaIz.rotation.y = Math.PI/2;
 
     pinzaDe = new THREE.Mesh( geom, material);
-    pinzaDe.position.set(0,-10,-18);
+    pinzaDe.position.set(0,-10,-16);
     pinzaDe.rotation.y = Math.PI/2;
 
     //  Añadir ejes x y  z
@@ -292,8 +292,8 @@ function update(){
     mano.rotation.z = effectController.giroPinza * Math.PI / 180;
 
     // Apertura/Cierre de la pinza sobre el eje Z de la mano)
-    pinzaIz.position.z = effectController.separacionPinza + 3
-    pinzaDe.position.z = -effectController.separacionPinza - 3
+    pinzaIz.position.z = effectController.separacionPinza + 4;
+    pinzaDe.position.z = -effectController.separacionPinza - 1;
 
 }
 
