@@ -28,7 +28,7 @@ function init(){
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
     cameraControls.target.set(0,0,0);
-    //cameraControls.enableKeys = false;
+    cameraControls.enableKeys = false;
     window.addEventListener('resize', updateAspectRatio);
 
     // Controles para conseguir movimiento del robot sobre el plano del suelo con las flechas del teclado.
@@ -36,16 +36,16 @@ function init(){
     renderer.domElement.setAttribute("tabIndex", "0");
     renderer.domElement.focus();
     keyboard.domElement.addEventListener('keydown', function (event) {
-        if (keyboard.eventMatches(event, 'a')) {
+        if (keyboard.eventMatches(event, 'left') || keyboard.eventMatches(event, 'a') ) {
             robot.position.x -= 10;
         }
-        if (keyboard.eventMatches(event, 'd')) {
+        if (keyboard.eventMatches(event, 'right') || keyboard.eventMatches(event, 'd') ) {
             robot.position.x += 10;
         }
-        if (keyboard.eventMatches(event, 'w')) {
+        if (keyboard.eventMatches(event, 'up') || keyboard.eventMatches(event, 'w') ) {
             robot.position.z -= 10;
         }
-        if (keyboard.eventMatches(event, 's')) {
+        if (keyboard.eventMatches(event, 'down') || keyboard.eventMatches(event, 's') ) {
             robot.position.z += 10;
         }
     });
