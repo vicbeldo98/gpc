@@ -1,4 +1,11 @@
+/**
+ * TODO: When resize mantain every aspect
+ */
+
 var renderer, scene, camera, mini_camera, robot, cameraControls;
+var arrowLeft, arrowRight, arrowUp, arrowDown;
+var high_point = 100;
+var low_point= -100;
 
 function init(){
     renderer = new THREE.WebGLRenderer();
@@ -7,15 +14,46 @@ function init(){
     document.body.appendChild( renderer.domElement);
 
     scene = new THREE.Scene();
+    scene.add(new THREE.AxesHelper(1000));
 
     var aspectRatio = window.innerWidth / window.innerHeight;
 
+    // Create main camera
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
     camera.position.set(0,0,100);
     camera.lookAt(0,0,0);
 
-    scene.add(new THREE.AxesHelper(1000));
+    // Controls for capturing keyboard
+    keyboard = new THREEx.KeyboardState(renderer.domElement);
+    renderer.domElement.setAttribute("tabIndex", "0");
+    renderer.domElement.focus();
+    keyboard.domElement.addEventListener('keydown', function (event) {
+        if (keyboard.eventMatches(event, 'left')) {
+            var x = -9;
+	        var y = 0;
+            let rayo = new THREE.Raycaster();
+            rayo.setFromCamera(new THREE.Vector2(x,y), camera );
 
+            // El true indica si se hace en profundidad, es decir, que no solo lo
+            // haga con el primer nivel, sino de manera recursiva
+            let intersecciones = rayo.intersectObjects( scene.children, true );
+            if(intersecciones.length>1){
+                console.log('****************');
+                console.log(intersecciones);
+            }
+            /*if(arrowLeft.isSameNode(topElt)) console.log('no overlapping');
+            else console.log('overlapping');*/
+        }
+        if (keyboard.eventMatches(event, 'right')) {
+             // OBTENER DE ALGUNA MANERA SI HAY ALGUNA FLECHA
+        }
+        if (keyboard.eventMatches(event, 'up')) {
+             // OBTENER DE ALGUNA MANERA SI HAY ALGUNA FLECHA
+        }
+        if (keyboard.eventMatches(event, 'down')) {
+             // OBTENER DE ALGUNA MANERA SI HAY ALGUNA FLECHA
+        }
+    });
 }
 
 function loadScene(){    
@@ -65,7 +103,7 @@ function loadSongArrows(){
     var material = new THREE.MeshBasicMaterial( {color: 0x000000, wireframe: true} );
     // Arrows defined for times of the song
     arrowFake = arrowGeometry(material);
-    arrowFake.position.set(-9,30,0);
+    arrowFake.position.set(-9, high_point, 0);
     scene.add(arrowFake);
     arrows = {
         'right': [arrowFake],
@@ -74,8 +112,8 @@ function loadSongArrows(){
     for(var i = 0; i< arrows['right'].length; i++){
         new TWEEN.Tween( arrows['right'][i].position )
                  .to( { x:[   -9,  -9],
-	                    y:[   25,    0],
-	                    z:[   0,  0]}, 1000)
+	                    y:[   0,    low_point],
+	                    z:[   0,  0]}, 10000)
 	             .interpolation( TWEEN.Interpolation.Bezier )
 	             .easing( TWEEN.Easing.Linear.None )
                  .start();
