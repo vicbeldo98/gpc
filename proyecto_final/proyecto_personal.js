@@ -5,7 +5,9 @@
 var renderer, scene, camera, mini_camera, robot, cameraControls;
 var arrowLeft, arrowRight, arrowUp, arrowDown;
 var high_point = 100;
-var low_point= -100;
+var low_point= -10;
+var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
+
 
 function init(){
     renderer = new THREE.WebGLRenderer();
@@ -29,17 +31,10 @@ function init(){
     renderer.domElement.focus();
     keyboard.domElement.addEventListener('keydown', function (event) {
         if (keyboard.eventMatches(event, 'left')) {
-            var x = -9;
-	        var y = 0;
-            let rayo = new THREE.Raycaster();
-            rayo.setFromCamera(new THREE.Vector2(x,y), camera );
-
-            // El true indica si se hace en profundidad, es decir, que no solo lo
-            // haga con el primer nivel, sino de manera recursiva
-            let intersecciones = rayo.intersectObjects( scene.children, true );
-            if(intersecciones.length>1){
-                console.log('****************');
-                console.log(intersecciones);
+            target_arrow = arrowsLeft[0];
+            if(Math.abs(target_arrow.position.y - arrowLeft.position.y) < 2){
+                arrowsLeft.pop();
+                scene.remove(target_arrow);
             }
             /*if(arrowLeft.isSameNode(topElt)) console.log('no overlapping');
             else console.log('overlapping');*/
@@ -102,21 +97,31 @@ function loadArrowPanel(){
 function loadSongArrows(){
     var material = new THREE.MeshBasicMaterial( {color: 0x000000, wireframe: true} );
     // Arrows defined for times of the song
-    arrowFake = arrowGeometry(material);
+    //TODO: AUNQUE BORRES DE LA ESCENA EL NODO, EL ONCOMPLETE SIGUE EJECUTANDOSE
+    var arrowFake = arrowGeometry(material);
     arrowFake.position.set(-9, high_point, 0);
+    var arrowFake2 = arrowGeometry(material);
+    arrowFake2.position.set(-9, high_point, 0);
     scene.add(arrowFake);
-    arrows = {
-        'right': [arrowFake],
-    }
+    scene.add(arrowFake2);
+    arrowsLeft = [arrowFake, arrowFake2]
 
-    for(var i = 0; i< arrows['right'].length; i++){
-        new TWEEN.Tween( arrows['right'][i].position )
-                 .to( { x:[   -9,  -9],
-	                    y:[   0,    low_point],
-	                    z:[   0,  0]}, 10000)
-	             .interpolation( TWEEN.Interpolation.Bezier )
-	             .easing( TWEEN.Easing.Linear.None )
-                 .start();
+    for(var i = 0; i< arrowsLeft.length; i++){
+        console.log(i);
+        var arrow_target = arrowsLeft[i];
+        var animate = new TWEEN.Tween( arrow_target.position )
+                      .to( { x:[   -9,  -9],
+	                         y:[   0,    low_point],
+	                         z:[   0,  0]}, 10000*(i+1))
+	                  .interpolation( TWEEN.Interpolation.Bezier )
+	                  .easing( TWEEN.Easing.Linear.None )
+                      .start();
+        animate.onComplete( function() {
+
+            console.log('ME??');
+            scene.remove(arrowsLeft[i]);
+        });
+
     }
 
 }
