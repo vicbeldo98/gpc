@@ -183,7 +183,7 @@ function loadSong(){
     const audioLoader = new THREE.AudioLoader();
     audioLoader.load('proyecto_final/songs/darude_sandstorm.ogg', function( buffer ) {
         sound.setBuffer( buffer );
-        sound.setLoop( true );
+        sound.setLoop( false );
         sound.setVolume( 0.5 );
         sound.play();
     });
