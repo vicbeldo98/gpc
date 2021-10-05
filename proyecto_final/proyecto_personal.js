@@ -177,10 +177,10 @@ function loadSong(){
 
     // create a global audio source
     const sound = new THREE.Audio( listener );
+    sound.context.resume();
 
     // load a sound and set it as the Audio object's buffer
     const audioLoader = new THREE.AudioLoader();
-    audioLoader.context.resume();
     audioLoader.load('proyecto_final/songs/darude_sandstorm.ogg', function( buffer ) {
         sound.setBuffer( buffer );
         sound.setLoop( true );
