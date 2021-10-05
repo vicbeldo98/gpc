@@ -41,10 +41,10 @@ function init(){
     keyboard.domElement.addEventListener('keydown', function (event) {
         if (keyboard.eventMatches(event, 'left')) {
             if(flagsLeft[idxLeft] == true){
-                idxLeft+=1;
+                idxLeft=flagsLeft.findIndex(element => element === false);
             }
             target_arrow = arrowsLeft[idxLeft];
-            if(Math.abs(target_arrow.position.y - arrowLeft.position.y) < 3){
+            if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
                 flagsLeft[idxLeft]=true;
                 idxLeft+=1;
                 scene.remove(target_arrow);
@@ -52,10 +52,11 @@ function init(){
         }
         if (keyboard.eventMatches(event, 'right')) {
             if(flagsRight[idxRight] == true){
-                idxRight+=1;
+                idxRight=flagsRight.findIndex(element => element === false);
+
             }
             target_arrow = arrowsRight[idxRight];
-            if(Math.abs(target_arrow.position.y - arrowRight.position.y) < 3){
+            if(Math.abs(target_arrow.position.y - arrowRight.position.y) <= 3){
                 flagsRight[idxRight]=true;
                 idxRight+=1;
                 scene.remove(target_arrow);
@@ -63,10 +64,10 @@ function init(){
         }
         if (keyboard.eventMatches(event, 'up')) {
             if(flagsUp[idxUp] == true){
-                idxUp+=1;
+                idxUp=flagsUp.findIndex(element => element === false);
             }
             target_arrow = arrowsUp[idxUp];
-            if(Math.abs(target_arrow.position.y - arrowUp.position.y) < 3){
+            if(Math.abs(target_arrow.position.y - arrowUp.position.y) <= 3){
                 flagsUp[idxUp]=true;
                 idxUp+=1;
                 scene.remove(target_arrow);
@@ -74,10 +75,10 @@ function init(){
         }
         if (keyboard.eventMatches(event, 'down')) {
             if(flagsDown[idxDown] == true){
-                idxDown+=1;
+                idxDown = flagsDown.findIndex(element => element === false);
             }
             target_arrow = arrowsDown[idxDown];
-            if(Math.abs(target_arrow.position.y - arrowDown.position.y) < 3){
+            if(Math.abs(target_arrow.position.y - arrowDown.position.y) <= 3){
                 flagsDown[idxDown]=true;
                 idxDown+=1;
                 scene.remove(target_arrow);
@@ -227,7 +228,7 @@ function loadSongArrows(){
         var arrow_target = arrowsLeft[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   0,  0],
-	                         y:[   0, -4],
+	                         y:[   0, 0],
 	                         z:[   0,  0]}, timesLeft[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
@@ -240,7 +241,8 @@ function loadSongArrows(){
                 flagsLeft[idxLeft] = true;
                 idxLeft+=1;
             }else{
-                idxLeft+=1;
+                idxLeft=flagsLeft.findIndex(element => element === false);
+
             }
         });
     }
@@ -251,7 +253,7 @@ function loadSongArrows(){
         var arrow_target = arrowsRight[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   16, 16],
-	                         y:[   0, -4],
+	                         y:[   0, 0],
 	                         z:[   0,  0]}, timesRight[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
@@ -264,7 +266,8 @@ function loadSongArrows(){
                 flagsRight[idxRight] = true;
                 idxRight+=1;
             }else{
-                idxRight+=1;
+                idxRight=flagsRight.findIndex(element => element === false);
+
             }
         });
     }
@@ -275,7 +278,7 @@ function loadSongArrows(){
         var arrow_target = arrowsUp[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   -16,  -16],
-	                         y:[   3, -1],
+	                         y:[   3, 3],
 	                         z:[   0,  0]}, timesUp[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
@@ -288,7 +291,7 @@ function loadSongArrows(){
                 flagsUp[idxUp] = true;
                 idxUp+=1;
             }else{
-                idxUp+=1;
+                idxUp=flagsUp.findIndex(element => element === false);
             }
         });
     }
@@ -299,7 +302,7 @@ function loadSongArrows(){
         var arrow_target = arrowsDown[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   -8,  -8],
-	                         y:[  -3, -7],
+	                         y:[  -3, -3],
 	                         z:[   0,  0]}, timesDown[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
@@ -312,7 +315,7 @@ function loadSongArrows(){
                 flagsDown[idxDown] = true;
                 idxDown+=1;
             }else{
-                idxDown+=1;
+                idxDown=flagsDown.findIndex(element => element === false);
             }
         });
     }
@@ -355,8 +358,8 @@ function loadSong(){
     if(audio.isPlaying){
         audio.stop();
     }
-    var stream ="https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a"
-    // var stream = "proyecto_final/songs/darude_sandstorm.ogg"
+    // var stream ="https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a"
+    var stream = "proyecto_final/songs/darude_sandstorm.ogg"
     audio.context.suspend();
     audio.context.resume();
 	audio.crossOrigin = "anonymous";
