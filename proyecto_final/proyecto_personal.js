@@ -174,17 +174,16 @@ function loadSong(){
     // create an AudioListener and add it to the camera
     const listener = new THREE.AudioListener();
     camera.add( listener );
-
+    var audioContext = new THREE.AudioContext();
     // create a global audio source
     const sound = new THREE.Audio( listener );
-    sound.context.resume();
+    sound.context = audioContext;
 
     // load a sound and set it as the Audio object's buffer
     const audioLoader = new THREE.AudioLoader();
     audioLoader.load('proyecto_final/songs/darude_sandstorm.ogg', function( buffer ) {
         sound.setBuffer( buffer );
-        sound.setLoop( false );
-        sound.setVolume( 0.5 );
+        sound.setVolume( 1.0);
         sound.play();
     });
     //loadSongArrows();
