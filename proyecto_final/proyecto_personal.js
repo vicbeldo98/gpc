@@ -7,6 +7,7 @@ var arrowLeft, arrowRight, arrowUp, arrowDown;
 var high_point = 100;
 var low_point= -10;
 var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
+var flagsLeft, flagsRight, flagsUp, flagsDown;
 
 
 function init(){
@@ -29,15 +30,18 @@ function init(){
     keyboard = new THREEx.KeyboardState(renderer.domElement);
     renderer.domElement.setAttribute("tabIndex", "0");
     renderer.domElement.focus();
+    var idxLeft = 0;
     keyboard.domElement.addEventListener('keydown', function (event) {
         if (keyboard.eventMatches(event, 'left')) {
-            target_arrow = arrowsLeft[0];
-            if(Math.abs(target_arrow.position.y - arrowLeft.position.y) < 2){
-                arrowsLeft.pop();
-                scene.remove(target_arrow);
+            if(flagsLeft[idxLeft] == true){
+                idxLeft+=1;
             }
-            /*if(arrowLeft.isSameNode(topElt)) console.log('no overlapping');
-            else console.log('overlapping');*/
+            target_arrow = arrowsLeft[idxLeft];
+            if(Math.abs(target_arrow.position.y - arrowLeft.position.y) < 3){
+                flagsLeft[idxLeft]=true;
+                idxLeft+=1;
+                scene.remove(target_arrow);
+            } 
         }
         if (keyboard.eventMatches(event, 'right')) {
              // OBTENER DE ALGUNA MANERA SI HAY ALGUNA FLECHA
@@ -97,29 +101,35 @@ function loadArrowPanel(){
 function loadSongArrows(){
     var material = new THREE.MeshBasicMaterial( {color: 0x000000, wireframe: true} );
     // Arrows defined for times of the song
-    //TODO: AUNQUE BORRES DE LA ESCENA EL NODO, EL ONCOMPLETE SIGUE EJECUTANDOSE
     var arrowFake = arrowGeometry(material);
     arrowFake.position.set(-9, high_point, 0);
     var arrowFake2 = arrowGeometry(material);
     arrowFake2.position.set(-9, high_point, 0);
     scene.add(arrowFake);
     scene.add(arrowFake2);
+    flagsLeft = [false, false]
+    var idxLeft = 0;
     arrowsLeft = [arrowFake, arrowFake2]
 
     for(var i = 0; i< arrowsLeft.length; i++){
-        console.log(i);
         var arrow_target = arrowsLeft[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   -9,  -9],
 	                         y:[   0,    low_point],
-	                         z:[   0,  0]}, 10000*(i+1))
+	                         z:[   0,  0]}, 5000*(i+1))
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
                       .start();
+        
         animate.onComplete( function() {
-
-            console.log('ME??');
-            scene.remove(arrowsLeft[i]);
+            if(flagsLeft[idxLeft] == false){
+                var aux = arrowsLeft[idxLeft];
+                scene.remove(aux);
+                flagsLeft[idxLeft] = true;
+                idxLeft+=1;
+            }else{
+                idxLeft+=1;
+            }
         });
 
     }
@@ -159,8 +169,28 @@ function arrowGeometry(material){
     return new THREE.Mesh( geom, material);
 }
 
+function loadSong(){
+    // create an AudioListener and add it to the camera
+    const listener = new THREE.AudioListener();
+    camera.add(listener);
+
+    // create a global audio source
+    const sound = new THREE.Audio(listener);
+
+    // load a sound and set it as the Audio object's buffer
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load( './songs/darude_sandstorm.ogg', function( buffer ) {
+        sound.setBuffer( buffer );
+        sound.setLoop( false );
+        sound.setVolume( 0.5 );
+        sound.play();
+    });
+
+    //loadSongArrows();
+}
+
 init();
 loadScene();
 loadArrowPanel();
-loadSongArrows();
+loadSong();
 render();
