@@ -170,22 +170,15 @@ function arrowGeometry(material){
 }
 
 function loadSong(){
-    //document.getElementById('darude').play();
-    // create an AudioListener and add it to the camera
-    const listener = new THREE.AudioListener();
-    camera.add( listener );
-    var audioContext = new THREE.AudioContext();
-    // create a global audio source
-    const sound = new THREE.Audio( listener );
-    sound.context = audioContext;
-
-    // load a sound and set it as the Audio object's buffer
-    const audioLoader = new THREE.AudioLoader();
-    audioLoader.load('proyecto_final/songs/darude_sandstorm.ogg', function( buffer ) {
-        sound.setBuffer( buffer );
-        sound.setVolume( 1.0);
-        sound.play();
-    });
+    var stream ="darud"
+	var audioLoader = new THREE.AudioLoader();
+	var listener = new THREE.AudioListener();
+	var audio = new THREE.Audio(listener);
+	audio.crossOrigin = "anonymous";
+	audioLoader.load('proyecto_final/songs/darude_sandstorm.ogg', function(buffer) {
+		audio.setBuffer(buffer);
+		audio.play();
+	});
     //loadSongArrows();
 }
 
