@@ -180,7 +180,8 @@ function loadSong(){
 
     // load a sound and set it as the Audio object's buffer
     const audioLoader = new THREE.AudioLoader();
-    audioLoader.load( 'proyecto_final/songs/darude_sandstorm.ogg', function( buffer ) {
+    audioLoader.context.resume();
+    audioLoader.load('proyecto_final/songs/darude_sandstorm.ogg', function( buffer ) {
         sound.setBuffer( buffer );
         sound.setLoop( true );
         sound.setVolume( 0.5 );
