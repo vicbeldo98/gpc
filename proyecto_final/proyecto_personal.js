@@ -26,7 +26,6 @@ function init(){
     document.body.appendChild( renderer.domElement);
     renderer.shadowMap.enabled = true;
     renderer.antialias = true;
-    renderer.gammaOutput = true;
 
     scene = new THREE.Scene();
     scene.add(new THREE.AxesHelper(1000));
@@ -103,8 +102,21 @@ function init(){
 	audio = new THREE.Audio(listener);
 
     //Luces
-    let luzAmbiente = new THREE.AmbientLight( 0xffffff, 1.0);
+    let luzAmbiente = new THREE.AmbientLight( 0xffffff, 0.5);
     scene.add(luzAmbiente);
+
+    let luzFocal = new THREE.SpotLight( 0xffffff, 0.8 );
+    luzFocal.position.set( 0, 15, 20 );
+    luzFocal.target.position.set( 0, 0, 0 );
+
+    luzFocal.angle = Math.PI;
+
+    // La penumbra aporta calidad en el paso de luz a sombra (a 0 queda mal)
+    luzFocal.penumbra = 0.8;
+    luzFocal.castShadow = true;
+
+    scene.add(luzAmbiente);
+    scene.add(luzFocal);
 }
 
 function loadScene(){    
@@ -482,16 +494,19 @@ function loadRoom(){
     pared.castShadow = true;
     pared.receiveShadow = true;
 
+    let txmachine = new THREE.TextureLoader().load('proyecto_final/models/DDR_Diffuse2.png');
+    txmachine.flipY = false;
+    let lights_down = new THREE.TextureLoader().load('proyecto_final/models/DDR_Emission.png');
+    var material = new THREE.MeshStandardMaterial({color:"white", map:txmachine, emissive:lights_down, metalness:0});
     let gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('proyecto_final/models/panel/tabla.glb', (gtlf) =>{
+    gltfLoader.load('proyecto_final/models/machine.gbl', (gtlf) =>{
         gtlf.scene.traverse(c => {
             c.castShadow = true;
             c.receiveShadow = true;
         });
-        console.log(gtlf.scene);
-        let txObj = new THREE.TextureLoader().load('proyecto_final/models/panel/pink.png');
-        gtlf.scene.rotation.y = Math.PI;
-        gtlf.scene.scale.set(0.08,0.08,0.08);
+        gtlf.scene.children[0].material = material;        
+        gtlf.scene.scale.set(200.0,200.0,200.0);
+        gtlf.scene.position.x = -20;
         scene.add(gtlf.scene);
     });
 
