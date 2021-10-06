@@ -414,8 +414,8 @@ function setupGui(){
     carpeta.add(effectController, "stop").name("Parar");
 }
 
-function loadModel(){
-    const loader = new THREE.FBXLoader();
+/*function loadModel(){
+    const loader = new THREE.GLTFLoader();
     loader.load('proyecto_final/animation/michelle.fbx', (fbx) =>{
         object.scale.set(0.01, 0.01, 0.01)
         mixer = new THREE.AnimationMixer(object)
@@ -429,7 +429,20 @@ function loadModel(){
 
         scene.add(object)
     });
+}*/
+
+function loadModel(){
+    const loader = new THREE.GTLFLoader();
+    loader.load('proyecto_final/animation/michelle.gtlf', (gtlf) =>{
+        gtlf.scene.traverse(c => {
+            c.castShadow = true;
+        });
+        console.log('*************');
+        console.log(gtlf);
+        scene.add(gtlf.scene);
+    })
 }
+
 
 init();
 loadScene();
