@@ -434,12 +434,13 @@ function setupGui(){
 function loadModel(){
     let gltfLoader = new THREE.GLTFLoader();
     gltfLoader.load('proyecto_final/animation/michelle.gltf', (gtlf) =>{
-        gtlf.scene.traverse(c => {
-            c.castShadow = true;
-        });
         console.log('*************');
         console.log(gtlf);
-        scene.add(gtlf.scene);
+        gtlf.scene.traverse(c => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+        });
+        scene.add(gtlf.animation[0]);
     })
 }
 
