@@ -7,6 +7,11 @@ var arrowLeft, arrowRight, arrowUp, arrowDown;
 var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
 var flagsLeft, flagsRight, flagsUp, flagsDown;
 
+var antes = Date.now();
+
+// ANIMATION
+var mixer;
+
 // AUDIO
 var audio, audioLoader, volume;
 
@@ -23,11 +28,14 @@ function init(){
     scene = new THREE.Scene();
     scene.add(new THREE.AxesHelper(1000));
 
+    let light = new THREE.AmbientLight(0xffffff);
+    scene.add(light);
+
     var aspectRatio = window.innerWidth / window.innerHeight;
 
     // Create main camera
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(0,0,100);
+    camera.position.set(0,2,5);
     camera.lookAt(0,0,0);
 
     var cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -102,6 +110,13 @@ function update(){
     audio.setVolume(effectController.volume);
 	TWEEN.update();
     renderer.domElement.focus();
+    var ahora = Date.now();
+    delta = (ahora - antes)/ 1000;
+    antes = ahora;
+    //console.log(delta);
+    if(mixer!=null){
+        mixer.update(delta);
+    }
 }
 
 function render(){
@@ -437,12 +452,14 @@ function setupGui(){
 function loadModel(){
     let gltfLoader = new THREE.GLTFLoader();
     gltfLoader.load('proyecto_final/animation/nahuel.glb', (gtlf) =>{
-        console.log('*************');
-        console.log(gtlf);
         gtlf.scene.traverse(c => {
             c.castShadow = true;
             c.receiveShadow = true;
-        });
+        });        
+
+        mixer = new THREE.AnimationMixer(gtlf.scene);
+        const dancing = mixer.clipAction(gtlf.animations[0]);
+        dancing.play();
         scene.add(gtlf.scene);
     })
 }
@@ -450,7 +467,7 @@ function loadModel(){
 
 init();
 loadScene();
+loadModel();
 setupGui();
 // loadArrowPanel();
-loadModel();
 render();
