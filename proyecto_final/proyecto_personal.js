@@ -1,7 +1,7 @@
 /**
  * TODO: When resize mantain every aspect
+ * TODO: MAKE SURE WHEN YOU STOP EVERY VARIABLE IS RESETTED BEFORE START AGAIN
  */
-
 var renderer, scene, camera, mini_camera, robot, cameraControls;
 var arrowLeft, arrowRight, arrowUp, arrowDown;
 var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
@@ -358,8 +358,8 @@ function loadSong(){
     if(audio.isPlaying){
         audio.stop();
     }
-    // var stream ="https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a"
-    var stream = "proyecto_final/songs/darude_sandstorm.ogg"
+    var stream ="https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a"
+    //var stream = "proyecto_final/songs/darude_sandstorm.ogg"
     audio.context.suspend();
     audio.context.resume();
 	audio.crossOrigin = "anonymous";
@@ -414,8 +414,27 @@ function setupGui(){
     carpeta.add(effectController, "stop").name("Parar");
 }
 
+function loadModel(){
+    const loader = new THREE.FBXLoader();
+    console.log(loader);
+    loader.load('./animation/michelle.fbx', (fbx) =>{
+        object.scale.set(0.01, 0.01, 0.01)
+        mixer = new THREE.AnimationMixer(object)
+
+        const animationAction = mixer.clipAction(
+            object.animations[0]
+        )
+        animationActions.push(animationAction)
+        animationsFolder.add(animations, 'default')
+        activeAction = animationActions[0]
+
+        scene.add(object)
+    });
+}
+
 init();
 loadScene();
 setupGui();
-loadArrowPanel();
+// loadArrowPanel();
+loadModel();
 render();
