@@ -432,7 +432,7 @@ function setupGui(){
 }*/
 
 function loadModel(){
-    let gltfLoader = new THREE.GLTFLoader()
+    let gltfLoader = new THREE.GLTFLoader();
     gltfLoader.load('proyecto_final/animation/michelle.gtlf', (gtlf) =>{
         gtlf.scene.traverse(c => {
             c.castShadow = true;
