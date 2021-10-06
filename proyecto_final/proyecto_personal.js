@@ -433,7 +433,7 @@ function setupGui(){
 
 function loadModel(){
     let gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('proyecto_final/animation/michelle.gtlf', (gtlf) =>{
+    gltfLoader.load('proyecto_final/animation/michelle.gltf', (gtlf) =>{
         gtlf.scene.traverse(c => {
             c.castShadow = true;
         });
