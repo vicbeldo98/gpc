@@ -416,8 +416,7 @@ function setupGui(){
 
 function loadModel(){
     const loader = new THREE.FBXLoader();
-    console.log(loader);
-    loader.load('./animation/michelle.fbx', (fbx) =>{
+    loader.load('proyecto_final/animation/michelle.fbx', (fbx) =>{
         object.scale.set(0.01, 0.01, 0.01)
         mixer = new THREE.AnimationMixer(object)
 
