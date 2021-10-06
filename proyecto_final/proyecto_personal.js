@@ -433,7 +433,7 @@ function setupGui(){
 
 function loadModel(){
     let gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('proyecto_final/animation/michelle.gltf', (gtlf) =>{
+    gltfLoader.load('proyecto_final/animation/sara.gltf', (gtlf) =>{
         console.log('*************');
         console.log(gtlf);
         gtlf.scene.traverse(c => {
