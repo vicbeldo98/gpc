@@ -24,18 +24,18 @@ function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.setClearColor ( new THREE.Color(0xFFFFFF), 1.0);
     document.body.appendChild( renderer.domElement);
+    renderer.shadowMap.enabled = true;
+    renderer.antialias = true;
+    renderer.gammaOutput = true;
 
     scene = new THREE.Scene();
     scene.add(new THREE.AxesHelper(1000));
-
-    let light = new THREE.AmbientLight(0xffffff);
-    scene.add(light);
 
     var aspectRatio = window.innerWidth / window.innerHeight;
 
     // Create main camera
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(0,2,5);
+    camera.position.set(0,15,20);
     camera.lookAt(0,0,0);
 
     var cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -101,6 +101,10 @@ function init(){
 	audioLoader = new THREE.AudioLoader();
 	var listener = new THREE.AudioListener();
 	audio = new THREE.Audio(listener);
+
+    //Luces
+    let luzAmbiente = new THREE.AmbientLight( 0xffffff, 1.0);
+    scene.add(luzAmbiente);
 }
 
 function loadScene(){    
@@ -432,42 +436,73 @@ function setupGui(){
     carpeta.add(effectController, "stop").name("Parar");
 }
 
-/*function loadModel(){
-    const loader = new THREE.GLTFLoader();
-    loader.load('proyecto_final/animation/michelle.fbx', (fbx) =>{
-        object.scale.set(0.01, 0.01, 0.01)
-        mixer = new THREE.AnimationMixer(object)
-
-        const animationAction = mixer.clipAction(
-            object.animations[0]
-        )
-        animationActions.push(animationAction)
-        animationsFolder.add(animations, 'default')
-        activeAction = animationActions[0]
-
-        scene.add(object)
-    });
-}*/
-
 function loadModel(){
     let gltfLoader = new THREE.GLTFLoader();
     gltfLoader.load('proyecto_final/animation/nahuel.glb', (gtlf) =>{
         gtlf.scene.traverse(c => {
             c.castShadow = true;
             c.receiveShadow = true;
-        });        
+        });
+        //renderer.gammaOutput = true;
 
+        gtlf.scene.scale.set(5,5,5);
+        gtlf.scene.position.y = 1;
         mixer = new THREE.AnimationMixer(gtlf.scene);
         const dancing = mixer.clipAction(gtlf.animations[0]);
         dancing.play();
         scene.add(gtlf.scene);
-    })
+    });
 }
 
+
+function loadRoom(){
+    let path = "images/";
+    let txsuelo = new THREE.TextureLoader().load(path + 'chess.jpg');
+    txsuelo.magfilter = THREE.LinearFilter;
+    txsuelo.minfilter = THREE.LinearFilter;
+    txsuelo.repeat.set(4, 4);
+    txsuelo.wrapS = txsuelo.wrapT = THREE.RepeatWrapping;
+    let materialBrillante = new THREE.MeshPhongMaterial( {color: 'white', specular: 'white', shininess: 80, map: txsuelo});
+
+    let suelo = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialBrillante);
+    suelo.rotation.x = -Math.PI/2;
+    suelo.castShadow = true;
+    suelo.receiveShadow = true;
+
+    let txpared = new THREE.TextureLoader().load(path + 'wood512.jpg');
+    txpared.magfilter = THREE.LinearFilter;
+    txpared.minfilter = THREE.LinearFilter;
+    txpared.repeat.set(4, 4);
+    txpared.wrapS = txpared.wrapT = THREE.RepeatWrapping;
+    let materialPared = new THREE.MeshPhongMaterial( {color: 'orange', specular: 'white', shininess: 80});
+
+
+    let pared = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared);
+    pared.position.z = -20;
+    pared.castShadow = true;
+    pared.receiveShadow = true;
+
+    let gltfLoader = new THREE.GLTFLoader();
+    gltfLoader.load('proyecto_final/models/panel/tabla.glb', (gtlf) =>{
+        gtlf.scene.traverse(c => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+        });
+        console.log(gtlf.scene);
+        let txObj = new THREE.TextureLoader().load('proyecto_final/models/panel/pink.png');
+        gtlf.scene.rotation.y = Math.PI;
+        gtlf.scene.scale.set(0.08,0.08,0.08);
+        scene.add(gtlf.scene);
+    });
+
+    scene.add(suelo);
+    scene.add(pared);
+}
 
 init();
 loadScene();
 loadModel();
+loadRoom();
 setupGui();
-// loadArrowPanel();
+//loadArrowPanel();
 render();
