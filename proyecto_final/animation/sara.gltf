@@ -7592,14 +7592,6 @@
             "target": 34962
         }
     },
-    "images": {
-        "image": {
-            "uri": "../../../../home/app/mixamo-mini/tmp/skins_1383d7ff-e428-495c-bbc6-02446a535d23.fbm/Ch03_1001_Diffuse.png"
-        },
-        "image_0": {
-            "uri": "../../../../home/app/mixamo-mini/tmp/skins_1383d7ff-e428-495c-bbc6-02446a535d23.fbm/Ch03_1001_Specular.png"
-        }
-    },
     "materials": {
         "Ch03_Body": {
             "values": {
