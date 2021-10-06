@@ -30,6 +30,9 @@ function init(){
     camera.position.set(0,0,100);
     camera.lookAt(0,0,0);
 
+    var cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+    cameraControls.target.set(0,0,0);
+
     // Controls for capturing keyboard
     keyboard = new THREEx.KeyboardState(renderer.domElement);
     renderer.domElement.setAttribute("tabIndex", "0");
@@ -433,14 +436,14 @@ function setupGui(){
 
 function loadModel(){
     let gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('proyecto_final/animation/sara.gltf', (gtlf) =>{
+    gltfLoader.load('proyecto_final/animation/nahuel.glb', (gtlf) =>{
         console.log('*************');
         console.log(gtlf);
         gtlf.scene.traverse(c => {
             c.castShadow = true;
             c.receiveShadow = true;
         });
-        scene.add(gtlf.animation[0]);
+        scene.add(gtlf.scene);
     })
 }
 
