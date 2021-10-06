@@ -432,8 +432,8 @@ function setupGui(){
 }*/
 
 function loadModel(){
-    const loader = new THREE.GTLFLoader();
-    loader.load('proyecto_final/animation/michelle.gtlf', (gtlf) =>{
+    let gltfLoader = new THREE.GLTFLoader()
+    gltfLoader.load('proyecto_final/animation/michelle.gtlf', (gtlf) =>{
         gtlf.scene.traverse(c => {
             c.castShadow = true;
         });
