@@ -26,6 +26,8 @@ function init(){
     document.body.appendChild( renderer.domElement);
     renderer.shadowMap.enabled = true;
     renderer.antialias = true;
+    renderer.gammaOutput = true;
+    renderer.gammaFactor = 2.2;
 
     scene = new THREE.Scene();
     scene.add(new THREE.AxesHelper(1000));
@@ -34,11 +36,11 @@ function init(){
 
     // Create main camera
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(0,15,20);
-    camera.lookAt(0,0,0);
+    camera.position.set(0,20,40);
+    camera.lookAt(0,20,0);
 
-    var cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-    cameraControls.target.set(0,0,0);
+    //var cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+    //cameraControls.target.set(0,0,0);
 
     // Controls for capturing keyboard
     keyboard = new THREEx.KeyboardState(renderer.domElement);
@@ -105,7 +107,7 @@ function init(){
     let luzAmbiente = new THREE.AmbientLight( 0xffffff, 0.5);
     scene.add(luzAmbiente);
 
-    let luzFocal = new THREE.SpotLight( 0xffffff, 0.8 );
+    /*let luzFocal = new THREE.SpotLight( 0xffffff, 0.8 );
     luzFocal.position.set( 0, 15, 20 );
     luzFocal.target.position.set( 0, 0, 0 );
 
@@ -114,9 +116,13 @@ function init(){
     // La penumbra aporta calidad en el paso de luz a sombra (a 0 queda mal)
     luzFocal.penumbra = 0.8;
     luzFocal.castShadow = true;
+    scene.add(luzFocal);*/
 
     scene.add(luzAmbiente);
-    scene.add(luzFocal);
+
+    /*const light = new THREE.PointLight( 0xff0000, 1, 100 );
+    light.position.set( 0, 0, 0 );
+    scene.add( light );*/
 }
 
 function loadScene(){    
@@ -129,7 +135,6 @@ function update(){
     var ahora = Date.now();
     delta = (ahora - antes)/ 1000;
     antes = ahora;
-    //console.log(delta);
     if(mixer!=null){
         mixer.update(delta);
     }
@@ -143,7 +148,7 @@ function render(){
 
 
 function loadArrowPanel(){
-    var material = new THREE.MeshBasicMaterial( {color: 0x000000, wireframe: true} );
+    var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
     var panel = new THREE.Object3D();
     
     // Create the four directives
@@ -153,16 +158,16 @@ function loadArrowPanel(){
     arrowDown = arrowGeometry(material);
 
     // Position them
-    arrowLeft.position.set(0,0,0);
+    arrowLeft.position.set(0,20,-5);
 
     arrowRight.rotation.z = Math.PI;
-    arrowRight.position.set(16,0,0);
+    arrowRight.position.set(16,20,-5);
 
     arrowUp.rotation.z = - 90 * Math.PI / 180;
-    arrowUp.position.set(-16,3,0);
+    arrowUp.position.set(-16,23,-5);
 
     arrowDown.rotation.z = 90 * Math.PI /180;
-    arrowDown.position.set(-8,-3,0);
+    arrowDown.position.set(-8,17,-5);
 
     // Insert arrows in the scene
     panel.add(arrowLeft);
@@ -174,7 +179,7 @@ function loadArrowPanel(){
 
 
 function loadSongArrows(){
-    var material = new THREE.MeshBasicMaterial( {color: 0x000000, wireframe: true} );
+    var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
 
     // Arrows defined for times of the song
     // Define left arrows
@@ -183,7 +188,7 @@ function loadSongArrows(){
     var timesLeft = [];
     for(var i = 0;i< 77;i++){
         var aux = arrowGeometry(material);
-        aux.position.set(0, 100*i, 0);
+        aux.position.set(0, 100*i, -5);
         arrowsLeft.push(aux);
         flagsLeft.push(false);
         timesLeft.push(4000*i);
@@ -196,7 +201,7 @@ function loadSongArrows(){
     for(var i = 0;i< 77;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = Math.PI;
-        aux.position.set(16, 100*i, 0);
+        aux.position.set(16, 100*i, -5);
         arrowsRight.push(aux);
         flagsRight.push(false);
         timesRight.push(7000*i);
@@ -209,7 +214,7 @@ function loadSongArrows(){
     for(var i = 0;i< 77;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = - 90 * Math.PI / 180;
-        aux.position.set(-16, 100*i, 0);
+        aux.position.set(-16, 100*i, -5);
         arrowsUp.push(aux);
         flagsUp.push(false);
         timesUp.push(13000*i);
@@ -222,7 +227,7 @@ function loadSongArrows(){
     for(var i = 0;i< 77;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = 90 * Math.PI /180;
-        aux.position.set(-8, 100*i, 0);
+        aux.position.set(-8, 100*i, -5);
         arrowsDown.push(aux);
         flagsDown.push(false);
         timesDown.push(5000*i);
@@ -262,8 +267,8 @@ function loadSongArrows(){
         var arrow_target = arrowsLeft[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   0,  0],
-	                         y:[   0, 0],
-	                         z:[   0,  0]}, timesLeft[i])
+	                         y:[   20, 20],
+	                         z:[   -5,  -5]}, timesLeft[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
                       .start();
@@ -287,8 +292,8 @@ function loadSongArrows(){
         var arrow_target = arrowsRight[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   16, 16],
-	                         y:[   0, 0],
-	                         z:[   0,  0]}, timesRight[i])
+	                         y:[   20, 20],
+	                         z:[   -5,  -5]}, timesRight[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
                       .start();
@@ -312,8 +317,8 @@ function loadSongArrows(){
         var arrow_target = arrowsUp[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   -16,  -16],
-	                         y:[   3, 3],
-	                         z:[   0,  0]}, timesUp[i])
+	                         y:[   23, 23],
+	                         z:[   -5,  -5]}, timesUp[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
                       .start();
@@ -336,8 +341,8 @@ function loadSongArrows(){
         var arrow_target = arrowsDown[i];
         var animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[   -8,  -8],
-	                         y:[  -3, -3],
-	                         z:[   0,  0]}, timesDown[i])
+	                         y:[  17, 17],
+	                         z:[   -5,  -5]}, timesDown[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
 	                  .easing( TWEEN.Easing.Linear.None )
                       .start();
@@ -392,8 +397,7 @@ function loadSong(){
     if(audio.isPlaying){
         audio.stop();
     }
-    var stream ="https://cdn.rawgit.com/ellenprobst/web-audio-api-with-Threejs/57582104/lib/TheWarOnDrugs.m4a"
-    //var stream = "proyecto_final/songs/darude_sandstorm.ogg"
+    var stream = "proyecto_final/songs/darude_sandstorm.ogg"
     audio.context.suspend();
     audio.context.resume();
 	audio.crossOrigin = "anonymous";
@@ -450,19 +454,19 @@ function setupGui(){
 
 function loadModel(){
     let gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('proyecto_final/animation/nahuel.glb', (gtlf) =>{
-        gtlf.scene.traverse(c => {
+    gltfLoader.load('proyecto_final/animation/michelle.glb', (michelle) =>{
+        michelle.scene.traverse(c => {
             c.castShadow = true;
             c.receiveShadow = true;
         });
         //renderer.gammaOutput = true;
-
-        gtlf.scene.scale.set(5,5,5);
-        gtlf.scene.position.y = 1;
-        mixer = new THREE.AnimationMixer(gtlf.scene);
-        const dancing = mixer.clipAction(gtlf.animations[0]);
+        michelle.scene.rotation.y = Math.PI;
+        michelle.scene.scale.set(5,5,5);
+        michelle.scene.position.y = 1;
+        mixer = new THREE.AnimationMixer(michelle.scene);
+        const dancing = mixer.clipAction(michelle.animations[0]);
         dancing.play();
-        scene.add(gtlf.scene);
+        scene.add(michelle.scene);
     });
 }
 
@@ -474,50 +478,136 @@ function loadRoom(){
     txsuelo.minfilter = THREE.LinearFilter;
     txsuelo.repeat.set(4, 4);
     txsuelo.wrapS = txsuelo.wrapT = THREE.RepeatWrapping;
-    let materialBrillante = new THREE.MeshPhongMaterial( {color: 'white', specular: 'white', shininess: 80, map: txsuelo});
+    let materialBrillante = new THREE.MeshPhongMaterial( {color: 'white', specular: 'white', shininess: 30, map: txsuelo});
 
     let suelo = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialBrillante);
     suelo.rotation.x = -Math.PI/2;
     suelo.castShadow = true;
     suelo.receiveShadow = true;
 
-    let txpared = new THREE.TextureLoader().load(path + 'wood512.jpg');
+    let txpared = new THREE.TextureLoader().load(path + 'paredfrente.jpg');
     txpared.magfilter = THREE.LinearFilter;
     txpared.minfilter = THREE.LinearFilter;
     txpared.repeat.set(4, 4);
     txpared.wrapS = txpared.wrapT = THREE.RepeatWrapping;
-    let materialPared = new THREE.MeshPhongMaterial( {color: 'orange', specular: 'white', shininess: 80});
+    let materialPared1 = new THREE.MeshLambertMaterial( {color: 'grey',map:txpared});
+    let materialPared2 = new THREE.MeshBasicMaterial( {color: 'yellow'});
 
 
-    let pared = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared);
-    pared.position.z = -20;
-    pared.castShadow = true;
-    pared.receiveShadow = true;
+    let pared_detras = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared2);
+    pared_detras.position.z = -8;
+    pared_detras.castShadow = true;
+    pared_detras.receiveShadow = true;
 
-    let txmachine = new THREE.TextureLoader().load('proyecto_final/models/DDR_Diffuse2.png');
+    let pared_lado = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared1);
+    pared_lado.rotation.y = -Math.PI/2;
+    pared_lado.position.x = 20;
+    pared_lado.castShadow = true;
+    pared_lado.receiveShadow = true;
+
+
+    let pared_lado2 = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared1);
+    pared_lado2.rotation.y = Math.PI/2;
+    pared_lado2.position.x = -30;
+    pared_lado2.castShadow = true;
+    pared_lado2.receiveShadow = true;
+
+
+    let txmachine = new THREE.TextureLoader().load('proyecto_final/models/dance/DDR_Diffuse2.png');
     txmachine.flipY = false;
-    let lights_down = new THREE.TextureLoader().load('proyecto_final/models/DDR_Emission.png');
+    txmachine.encoding = THREE.sRGBEncoding;
+    let lights_down = new THREE.TextureLoader().load('proyecto_final/models/dance/DDR_Emission.png');
     var material = new THREE.MeshStandardMaterial({color:"white", map:txmachine, emissive:lights_down, metalness:0});
     let gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('proyecto_final/models/machine.gbl', (gtlf) =>{
-        gtlf.scene.traverse(c => {
+    gltfLoader.load('proyecto_final/models/dance/machine.gbl', (danceM) =>{
+        danceM.scene.traverse(c => {
             c.castShadow = true;
             c.receiveShadow = true;
         });
-        gtlf.scene.children[0].material = material;        
-        gtlf.scene.scale.set(200.0,200.0,200.0);
-        gtlf.scene.position.x = -20;
-        scene.add(gtlf.scene);
+        danceM.scene.children[0].material = material;        
+        danceM.scene.scale.set(200.0,200.0,200.0);
+        danceM.scene.position.x = -35;
+        danceM.scene.position.z = -1;
+        scene.add(danceM.scene);
+    });
+
+    gltfLoader.load('proyecto_final/models/air-hockey-arcade/AirHockey.glb', (hockey) =>{
+        hockey.scene.traverse(c => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+        });
+        var children = hockey.scene.children;
+        children.shift();
+        hockey.scene.children = children;
+        hockey.scene.scale.set(3.0, 3.0, 3.0);
+        hockey.scene.position.z = 15;
+        hockey.scene.position.x = -5;
+        scene.add(hockey.scene);
+    });
+
+    gltfLoader.load('proyecto_final/models/arcade.glb', (arcade) =>{
+        arcade.scene.traverse(c => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+        });
+        var children = arcade.scene.children;
+        children.shift();
+        arcade.scene.children = children;
+        arcade.scene.rotation.y = -Math.PI;
+        arcade.scene.scale.set(1.0, 0.7, 1.0);
+        arcade.scene.position.y = 7;
+        arcade.scene.position.x = 15;
+        arcade.scene.position.z = -4;
+        scene.add(arcade.scene);
+    });
+
+    gltfLoader.load('proyecto_final/models/tragaperras/tragaperras.glb', (tragaP) =>{
+        tragaP.scene.traverse(c => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+        });
+        tragaP.scene.rotation.y = Math.PI/2;
+     
+        tragaP.scene.scale.set(0.6, 0.6, 0.7);
+        tragaP.scene.position.x = 12;
+        tragaP.scene.position.z = 8;
+        tragaP.scene.position.y = 7.3;
+        scene.add(tragaP.scene);
+    });
+
+    gltfLoader.load('proyecto_final/models/table/TableArcade.glb', (table) =>{
+        table.scene.traverse(c => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+        });
+
+        let materialBase = new THREE.MeshPhongMaterial({color: 0xc60505, shininess:150});
+        table.scene.children[2].material = materialBase;
+        table.scene.children[8].material = materialBase;
+
+        let materialUp = new THREE.MeshLambertMaterial( { color: 'black'} );
+        table.scene.children[3].material = materialUp;
+
+        var children = table.scene.children;
+        children.pop();
+        table.scene.children = children;
+        table.scene.rotation.y = -Math.PI;
+        table.scene.scale.set(2.5, 2.0, 2.5);
+        table.scene.position.x = 10;
+        table.scene.position.z = 18;
+        scene.add(table.scene);
     });
 
     scene.add(suelo);
-    scene.add(pared);
+    scene.add(pared_detras);
+    scene.add(pared_lado);
+    scene.add(pared_lado2);
 }
 
 init();
 loadScene();
-loadModel();
 loadRoom();
+loadModel();
 setupGui();
-//loadArrowPanel();
+loadArrowPanel();
 render();
