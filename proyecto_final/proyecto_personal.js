@@ -1,13 +1,18 @@
 /**
  * TODO: LIGHTNING
  * TODO:TEXTURA FLECHAS
- * TODO:PUNTUACIÓN
+ * todo: al cargar un loading o algo
+ * TODO:asegurarte de los estados iniciales y finales
+ * TODO:mirar que animación de michelle me gusta más
  */
 var renderer, scene, camera, mini_camera, robot, cameraControls;
 var arrowLeft, arrowRight, arrowUp, arrowDown;
 var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
 var flagsLeft, flagsRight, flagsUp, flagsDown;
 var kidxLeft, kidxRight, kidxUp, kidxDown;
+var puntuacion_inicial = 0;
+var puntuacion;
+var text;
 
 var antes = Date.now();
 
@@ -22,6 +27,7 @@ var effectController;
 
 
 function init(){
+    puntuacion = puntuacion_inicial;
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.setClearColor ( new THREE.Color(0xFFFFFF), 1.0);
@@ -49,49 +55,63 @@ function init(){
     kidxUp = 0;
     kidxDown = 0;
     keyboard.domElement.addEventListener('keydown', function (event) {
-        if (keyboard.eventMatches(event, 'left')) {
-            if(flagsLeft[kidxLeft] == true){
-                kidxLeft=flagsLeft.findIndex(element => element === false);
+        if(!event.repeat){
+            if (keyboard.eventMatches(event, 'left')) {
+                if(flagsLeft[kidxLeft] == true){
+                    kidxLeft=flagsLeft.findIndex(element => element === false);
+                }
+                target_arrow = arrowsLeft[kidxLeft];
+                if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
+                    puntuacion +=2;
+                    flagsLeft[kidxLeft]=true;
+                    kidxLeft+=1;
+                    scene.remove(target_arrow);
+                }else{
+                    puntuacion -=1;
+                }
             }
-            target_arrow = arrowsLeft[kidxLeft];
-            if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
-                flagsLeft[kidxLeft]=true;
-                kidxLeft+=1;
-                scene.remove(target_arrow);
-            }
-        }
-        if (keyboard.eventMatches(event, 'right')) {
-            if(flagsRight[kidxRight] == true){
-                kidxRight=flagsRight.findIndex(element => element === false);
+            if (keyboard.eventMatches(event, 'right')) {
+                if(flagsRight[kidxRight] == true){
+                    kidxRight=flagsRight.findIndex(element => element === false);
 
+                }
+                target_arrow = arrowsRight[kidxRight];
+                if(Math.abs(target_arrow.position.y - arrowRight.position.y) <= 3){
+                    puntuacion +=2;
+                    flagsRight[kidxRight]=true;
+                    kidxRight+=1;
+                    scene.remove(target_arrow);
+                } else{
+                    puntuacion -=1;
+                }
             }
-            target_arrow = arrowsRight[kidxRight];
-            if(Math.abs(target_arrow.position.y - arrowRight.position.y) <= 3){
-                flagsRight[kidxRight]=true;
-                kidxRight+=1;
-                scene.remove(target_arrow);
+            if (keyboard.eventMatches(event, 'up')) {
+                if(flagsUp[kidxUp] == true){
+                    kidxUp=flagsUp.findIndex(element => element === false);
+                }
+                target_arrow = arrowsUp[kidxUp];
+                if(Math.abs(target_arrow.position.y - arrowUp.position.y) <= 3){
+                    puntuacion +=2;
+                    flagsUp[kidxUp]=true;
+                    kidxUp+=1;
+                    scene.remove(target_arrow);
+                } else{
+                    puntuacion -=1;
+                }
             }
-        }
-        if (keyboard.eventMatches(event, 'up')) {
-            if(flagsUp[kidxUp] == true){
-                kidxUp=flagsUp.findIndex(element => element === false);
-            }
-            target_arrow = arrowsUp[kidxUp];
-            if(Math.abs(target_arrow.position.y - arrowUp.position.y) <= 3){
-                flagsUp[kidxUp]=true;
-                kidxUp+=1;
-                scene.remove(target_arrow);
-            }
-        }
-        if (keyboard.eventMatches(event, 'down')) {
-            if(flagsDown[kidxDown] == true){
-                kidxDown = flagsDown.findIndex(element => element === false);
-            }
-            target_arrow = arrowsDown[kidxDown];
-            if(Math.abs(target_arrow.position.y - arrowDown.position.y) <= 3){
-                flagsDown[kidxDown]=true;
-                kidxDown+=1;
-                scene.remove(target_arrow);
+            if (keyboard.eventMatches(event, 'down')) {
+                if(flagsDown[kidxDown] == true){
+                    kidxDown = flagsDown.findIndex(element => element === false);
+                }
+                target_arrow = arrowsDown[kidxDown];
+                if(Math.abs(target_arrow.position.y - arrowDown.position.y) <= 3){
+                    puntuacion +=2;
+                    flagsDown[kidxDown]=true;
+                    kidxDown+=1;
+                    scene.remove(target_arrow);
+                }else{
+                    puntuacion -=1;
+                }
             }
         }
     });
@@ -123,6 +143,8 @@ function init(){
     scene.add( light );*/
 
     window.addEventListener('resize', updateAspectRatio );
+
+    loadPunctuation();
 }
 
 function updateAspectRatio() {
@@ -133,6 +155,11 @@ function updateAspectRatio() {
 }
 
 function update(){
+    if(puntuacion_inicial != puntuacion){
+        scene.remove(text);
+        loadPunctuation();
+        puntuacion_inicial = puntuacion;
+    }
     audio.setVolume(effectController.volume);
 	TWEEN.update();
     renderer.domElement.focus();
@@ -150,6 +177,22 @@ function render(){
     renderer.render( scene, camera );
 }
 
+function loadPunctuation(){
+    var fontLoader = new THREE.FontLoader();
+    fontLoader.load("fonts/helvetiker_regular.typeface.json",function(tex){ 
+        var  textGeo = new THREE.TextGeometry('Score:' + puntuacion, {
+                size: 2,
+                height: 0,
+                curveSegments: 6,
+                font: tex,
+        });
+        var  textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+        text = new THREE.Mesh(textGeo , textMaterial);
+        text.scale.set(0.5,0.5,0.5);
+        text.position.set(-27, 50 , -4);
+        scene.add(text);
+    });
+}
 
 function loadArrowPanel(){
     var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
@@ -442,6 +485,7 @@ function setupGui(){
         },
         volume: 0.5,
         stop: function(){
+            puntuacion = 0;
             kidxLeft = 0;
             kidxRight = 0;
             kidxUp = 0;
@@ -612,7 +656,7 @@ function loadRoom(){
 
 init();
 loadRoom();
+loadArrowPanel();
 loadModel();
 setupGui();
-loadArrowPanel();
 render();
