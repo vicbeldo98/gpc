@@ -1,11 +1,13 @@
 /**
- * TODO: When resize mantain every aspect
- * TODO: MAKE SURE WHEN YOU STOP EVERY VARIABLE IS RESETTED BEFORE START AGAIN
+ * TODO: LIGHTNING
+ * TODO:TEXTURA FLECHAS
+ * TODO:PUNTUACIÓN
  */
 var renderer, scene, camera, mini_camera, robot, cameraControls;
 var arrowLeft, arrowRight, arrowUp, arrowDown;
 var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
 var flagsLeft, flagsRight, flagsUp, flagsDown;
+var kidxLeft, kidxRight, kidxUp, kidxDown;
 
 var antes = Date.now();
 
@@ -30,7 +32,6 @@ function init(){
     renderer.gammaFactor = 2.2;
 
     scene = new THREE.Scene();
-    scene.add(new THREE.AxesHelper(1000));
 
     var aspectRatio = window.innerWidth / window.innerHeight;
 
@@ -39,60 +40,57 @@ function init(){
     camera.position.set(0,20,40);
     camera.lookAt(0,20,0);
 
-    //var cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-    //cameraControls.target.set(0,0,0);
-
     // Controls for capturing keyboard
     keyboard = new THREEx.KeyboardState(renderer.domElement);
     renderer.domElement.setAttribute("tabIndex", "0");
     renderer.domElement.focus();
-    var idxLeft = 0;
-    var idxRight = 0;
-    var idxUp = 0;
-    var idxDown = 0;
+    kidxLeft = 0;
+    kidxRight = 0;
+    kidxUp = 0;
+    kidxDown = 0;
     keyboard.domElement.addEventListener('keydown', function (event) {
         if (keyboard.eventMatches(event, 'left')) {
-            if(flagsLeft[idxLeft] == true){
-                idxLeft=flagsLeft.findIndex(element => element === false);
+            if(flagsLeft[kidxLeft] == true){
+                kidxLeft=flagsLeft.findIndex(element => element === false);
             }
-            target_arrow = arrowsLeft[idxLeft];
+            target_arrow = arrowsLeft[kidxLeft];
             if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
-                flagsLeft[idxLeft]=true;
-                idxLeft+=1;
+                flagsLeft[kidxLeft]=true;
+                kidxLeft+=1;
                 scene.remove(target_arrow);
             }
         }
         if (keyboard.eventMatches(event, 'right')) {
-            if(flagsRight[idxRight] == true){
-                idxRight=flagsRight.findIndex(element => element === false);
+            if(flagsRight[kidxRight] == true){
+                kidxRight=flagsRight.findIndex(element => element === false);
 
             }
-            target_arrow = arrowsRight[idxRight];
+            target_arrow = arrowsRight[kidxRight];
             if(Math.abs(target_arrow.position.y - arrowRight.position.y) <= 3){
-                flagsRight[idxRight]=true;
-                idxRight+=1;
+                flagsRight[kidxRight]=true;
+                kidxRight+=1;
                 scene.remove(target_arrow);
             }
         }
         if (keyboard.eventMatches(event, 'up')) {
-            if(flagsUp[idxUp] == true){
-                idxUp=flagsUp.findIndex(element => element === false);
+            if(flagsUp[kidxUp] == true){
+                kidxUp=flagsUp.findIndex(element => element === false);
             }
-            target_arrow = arrowsUp[idxUp];
+            target_arrow = arrowsUp[kidxUp];
             if(Math.abs(target_arrow.position.y - arrowUp.position.y) <= 3){
-                flagsUp[idxUp]=true;
-                idxUp+=1;
+                flagsUp[kidxUp]=true;
+                kidxUp+=1;
                 scene.remove(target_arrow);
             }
         }
         if (keyboard.eventMatches(event, 'down')) {
-            if(flagsDown[idxDown] == true){
-                idxDown = flagsDown.findIndex(element => element === false);
+            if(flagsDown[kidxDown] == true){
+                kidxDown = flagsDown.findIndex(element => element === false);
             }
-            target_arrow = arrowsDown[idxDown];
+            target_arrow = arrowsDown[kidxDown];
             if(Math.abs(target_arrow.position.y - arrowDown.position.y) <= 3){
-                flagsDown[idxDown]=true;
-                idxDown+=1;
+                flagsDown[kidxDown]=true;
+                kidxDown+=1;
                 scene.remove(target_arrow);
             }
         }
@@ -123,9 +121,15 @@ function init(){
     /*const light = new THREE.PointLight( 0xff0000, 1, 100 );
     light.position.set( 0, 0, 0 );
     scene.add( light );*/
+
+    window.addEventListener('resize', updateAspectRatio );
 }
 
-function loadScene(){    
+function updateAspectRatio() {
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    let aspectRatio = window.innerWidth/window.innerHeight;
+    camera.aspect = aspectRatio;
+    camera.updateProjectionMatrix();
 }
 
 function update(){
@@ -438,6 +442,10 @@ function setupGui(){
         },
         volume: 0.5,
         stop: function(){
+            kidxLeft = 0;
+            kidxRight = 0;
+            kidxUp = 0;
+            kidxDown = 0;
             if(audio.isPlaying){
                 restartArrows();
                 audio.stop();
@@ -501,7 +509,7 @@ function loadRoom(){
 
     let pared_lado = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared1);
     pared_lado.rotation.y = -Math.PI/2;
-    pared_lado.position.x = 20;
+    pared_lado.position.x = 30;
     pared_lado.castShadow = true;
     pared_lado.receiveShadow = true;
 
@@ -541,7 +549,7 @@ function loadRoom(){
         hockey.scene.children = children;
         hockey.scene.scale.set(3.0, 3.0, 3.0);
         hockey.scene.position.z = 15;
-        hockey.scene.position.x = -5;
+        hockey.scene.position.x = -15;
         scene.add(hockey.scene);
     });
 
@@ -556,7 +564,7 @@ function loadRoom(){
         arcade.scene.rotation.y = -Math.PI;
         arcade.scene.scale.set(1.0, 0.7, 1.0);
         arcade.scene.position.y = 7;
-        arcade.scene.position.x = 15;
+        arcade.scene.position.x = 23;
         arcade.scene.position.z = -4;
         scene.add(arcade.scene);
     });
@@ -566,11 +574,10 @@ function loadRoom(){
             c.castShadow = true;
             c.receiveShadow = true;
         });
-        tragaP.scene.rotation.y = Math.PI/2;
+        tragaP.scene.rotation.y = Math.PI;
      
         tragaP.scene.scale.set(0.6, 0.6, 0.7);
-        tragaP.scene.position.x = 12;
-        tragaP.scene.position.z = 8;
+        tragaP.scene.position.x = -20;
         tragaP.scene.position.y = 7.3;
         scene.add(tragaP.scene);
     });
@@ -591,10 +598,9 @@ function loadRoom(){
         var children = table.scene.children;
         children.pop();
         table.scene.children = children;
-        table.scene.rotation.y = -Math.PI;
         table.scene.scale.set(2.5, 2.0, 2.5);
-        table.scene.position.x = 10;
-        table.scene.position.z = 18;
+        table.scene.position.x = 15;
+        table.scene.position.z = 12;
         scene.add(table.scene);
     });
 
@@ -605,7 +611,6 @@ function loadRoom(){
 }
 
 init();
-loadScene();
 loadRoom();
 loadModel();
 setupGui();
