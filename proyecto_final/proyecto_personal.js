@@ -1,22 +1,33 @@
-/**
- * TODO: LIGHTNING
- * TODO:TEXTURA FLECHAS
- * todo: al cargar un loading o algo
- * TODO:asegurarte de los estados iniciales y finales
- * TODO:mirar que animación de michelle me gusta más
- */
+// CONTROLES BÁSICOS
 var renderer, scene, camera, mini_camera, robot, cameraControls;
+
+// ANIMACIÓN DE FLECHAS
 var arrowLeft, arrowRight, arrowUp, arrowDown;
 var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
 var flagsLeft, flagsRight, flagsUp, flagsDown;
 var kidxLeft, kidxRight, kidxUp, kidxDown;
+
+// PUNTUACIÓN
 var puntuacion_inicial = 0;
 var puntuacion;
+
+// TEXTO DE PUNTUACIÓN
 var text;
 
-var antes = Date.now();
+// CARGA DE MODELOS
+var manager;
+var loadingScreen = {
+    scene: new THREE.Scene(),
+    camera: new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 100),
+    box: new THREE.Mesh(
+        new THREE.BoxGeometry(1.0,1.0,1.0),
+        new THREE.MeshBasicMaterial({color:'yellow'})
+    )
+};
+var RESOURCES_LOADED = false;
 
-// ANIMATION
+// ANIMACIÓN DE MICHELLE
+var dancing;
 var mixer;
 
 // AUDIO
@@ -25,28 +36,49 @@ var audio, audioLoader, volume;
 // GUI
 var effectController;
 
+// TIEMPO
+var antes = Date.now();
+
+// TEXTURAS
+var blackTexture = new THREE.MeshPhongMaterial( {color: 'black', shininess:250} );
+
 
 function init(){
-    puntuacion = puntuacion_inicial;
+    // Inicializar variables
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.setClearColor ( new THREE.Color(0xFFFFFF), 1.0);
+    renderer.setClearColor ( new THREE.Color(0x000000), 1.0);
     document.body.appendChild( renderer.domElement);
     renderer.shadowMap.enabled = true;
     renderer.antialias = true;
     renderer.gammaOutput = true;
     renderer.gammaFactor = 2.2;
-
-    scene = new THREE.Scene();
-
     var aspectRatio = window.innerWidth / window.innerHeight;
 
-    // Create main camera
+    // Cargar el administrador de carga
+    manager = new THREE.LoadingManager();
+
+     manager.onLoad = function() {
+        RESOURCES_LOADED = true;
+    };
+
+    // Crear escena de carga
+    loadingScreen.box.position.set(0,0,5);
+    loadingScreen.camera.lookAt(loadingScreen.box.position);
+    loadingScreen.scene.add(loadingScreen.box);
+
+    // Crear escena principal
+    scene = new THREE.Scene();
+
+    // Crear camara principal
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
     camera.position.set(0,20,40);
     camera.lookAt(0,20,0);
 
-    // Controls for capturing keyboard
+    // Inicializar contador del juego
+    puntuacion = puntuacion_inicial;    
+
+    // Gestionar teclado
     keyboard = new THREEx.KeyboardState(renderer.domElement);
     renderer.domElement.setAttribute("tabIndex", "0");
     renderer.domElement.focus();
@@ -62,12 +94,12 @@ function init(){
                 }
                 target_arrow = arrowsLeft[kidxLeft];
                 if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
-                    puntuacion +=2;
+                    puntuacion +=10;
                     flagsLeft[kidxLeft]=true;
                     kidxLeft+=1;
                     scene.remove(target_arrow);
                 }else{
-                    puntuacion -=1;
+                    puntuacion -=5;
                 }
             }
             if (keyboard.eventMatches(event, 'right')) {
@@ -77,12 +109,12 @@ function init(){
                 }
                 target_arrow = arrowsRight[kidxRight];
                 if(Math.abs(target_arrow.position.y - arrowRight.position.y) <= 3){
-                    puntuacion +=2;
+                    puntuacion +=10;
                     flagsRight[kidxRight]=true;
                     kidxRight+=1;
                     scene.remove(target_arrow);
                 } else{
-                    puntuacion -=1;
+                    puntuacion -=5;
                 }
             }
             if (keyboard.eventMatches(event, 'up')) {
@@ -91,12 +123,12 @@ function init(){
                 }
                 target_arrow = arrowsUp[kidxUp];
                 if(Math.abs(target_arrow.position.y - arrowUp.position.y) <= 3){
-                    puntuacion +=2;
+                    puntuacion +=10;
                     flagsUp[kidxUp]=true;
                     kidxUp+=1;
                     scene.remove(target_arrow);
                 } else{
-                    puntuacion -=1;
+                    puntuacion -=5;
                 }
             }
             if (keyboard.eventMatches(event, 'down')) {
@@ -105,46 +137,55 @@ function init(){
                 }
                 target_arrow = arrowsDown[kidxDown];
                 if(Math.abs(target_arrow.position.y - arrowDown.position.y) <= 3){
-                    puntuacion +=2;
+                    puntuacion +=10;
                     flagsDown[kidxDown]=true;
                     kidxDown+=1;
                     scene.remove(target_arrow);
                 }else{
-                    puntuacion -=1;
+                    puntuacion -=5;
                 }
             }
         }
     });
 
-    //  Music definition
-	audioLoader = new THREE.AudioLoader();
+    // Musica
+	audioLoader = new THREE.AudioLoader(manager);
 	var listener = new THREE.AudioListener();
 	audio = new THREE.Audio(listener);
 
-    //Luces
-    let luzAmbiente = new THREE.AmbientLight( 0xffffff, 0.5);
+    // Luces
+    let luzAmbiente = new THREE.AmbientLight( 0xffffff, 0.4);
     scene.add(luzAmbiente);
 
-    /*let luzFocal = new THREE.SpotLight( 0xffffff, 0.8 );
-    luzFocal.position.set( 0, 15, 20 );
+    let luzFocal = new THREE.SpotLight(0xffffff, 5.0 );
+    luzFocal.position.set( 0, 16, -5 );
     luzFocal.target.position.set( 0, 0, 0 );
 
-    luzFocal.angle = Math.PI;
+    luzFocal.angle = Math.PI/2;
 
-    // La penumbra aporta calidad en el paso de luz a sombra (a 0 queda mal)
     luzFocal.penumbra = 0.8;
     luzFocal.castShadow = true;
-    scene.add(luzFocal);*/
 
-    scene.add(luzAmbiente);
+    scene.add(luzFocal);
 
-    /*const light = new THREE.PointLight( 0xff0000, 1, 100 );
-    light.position.set( 0, 0, 0 );
-    scene.add( light );*/
+    const light = new THREE.PointLight( 0xfff000, 1, 100 );
+    light.position.set( 0, 10, -6 );
+    light.castShadow = true;
+    scene.add( light );
 
     window.addEventListener('resize', updateAspectRatio );
 
+    // Cargar puntuación
     loadPunctuation();
+
+    // Cargar la habitación
+    loadRoom();
+
+    // Cargar flechas
+    loadArrowPanel();
+
+    // Cargar controles audio
+    setupGui();
 }
 
 function updateAspectRatio() {
@@ -155,6 +196,7 @@ function updateAspectRatio() {
 }
 
 function update(){
+    // Actualizar puntuación
     if(puntuacion_inicial != puntuacion){
         scene.remove(text);
         loadPunctuation();
@@ -174,11 +216,19 @@ function update(){
 function render(){
     requestAnimationFrame( render );
     update();
-    renderer.render( scene, camera );
+
+    // Distinguir escena de carga y principal
+    if(RESOURCES_LOADED == false){
+        loadingScreen.box.rotation.z +=0.01;
+        renderer.render( loadingScreen.scene, loadingScreen.camera );
+    } else{
+        renderer.render( scene, camera );
+        
+    }
 }
 
 function loadPunctuation(){
-    var fontLoader = new THREE.FontLoader();
+    var fontLoader = new THREE.FontLoader(manager);
     fontLoader.load("fonts/helvetiker_regular.typeface.json",function(tex){ 
         var  textGeo = new THREE.TextGeometry('Score:' + puntuacion, {
                 size: 2,
@@ -195,16 +245,15 @@ function loadPunctuation(){
 }
 
 function loadArrowPanel(){
-    var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
     var panel = new THREE.Object3D();
     
-    // Create the four directives
-    arrowLeft = arrowGeometry(material);
-    arrowRight = arrowGeometry(material);
-    arrowUp = arrowGeometry(material);
-    arrowDown = arrowGeometry(material);
+    // Crear cuatro directivas
+    arrowLeft = arrowGeometry(blackTexture);
+    arrowRight = arrowGeometry(blackTexture);
+    arrowUp = arrowGeometry(blackTexture);
+    arrowDown = arrowGeometry(blackTexture);
 
-    // Position them
+    // Posicionarlas
     arrowLeft.position.set(0,20,-5);
 
     arrowRight.rotation.z = Math.PI;
@@ -216,7 +265,7 @@ function loadArrowPanel(){
     arrowDown.rotation.z = 90 * Math.PI /180;
     arrowDown.position.set(-8,17,-5);
 
-    // Insert arrows in the scene
+    // Insertarlas
     panel.add(arrowLeft);
     panel.add(arrowRight);
     panel.add(arrowUp);
@@ -228,56 +277,56 @@ function loadArrowPanel(){
 function loadSongArrows(){
     var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
 
-    // Arrows defined for times of the song
-    // Define left arrows
+    // Flechas definidas por tiempos en la canción
+    // Left arrows
     flagsLeft = [];
     arrowsLeft = [];
     var timesLeft = [];
     for(var i = 0;i< 77;i++){
         var aux = arrowGeometry(material);
-        aux.position.set(0, 100*i, -5);
+        aux.position.set(0, 100*i + 400, -5);
         arrowsLeft.push(aux);
         flagsLeft.push(false);
-        timesLeft.push(4000*i);
+        timesLeft.push(4000*i + 3000);
     }
 
-    // Define right arrows
+    // Right arrows
     flagsRight = [];
     arrowsRight = [];
     var timesRight = [];
     for(var i = 0;i< 77;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = Math.PI;
-        aux.position.set(16, 100*i, -5);
+        aux.position.set(16, 100*i + 300, -5);
         arrowsRight.push(aux);
         flagsRight.push(false);
-        timesRight.push(7000*i);
+        timesRight.push(7000*i + 5000);
     }
 
-    // Define up arrows
+    // Up arrows
     flagsUp = [];
     arrowsUp = [];
     var timesUp = [];
     for(var i = 0;i< 77;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = - 90 * Math.PI / 180;
-        aux.position.set(-16, 100*i, -5);
+        aux.position.set(-16, 100*i + 200, -5);
         arrowsUp.push(aux);
         flagsUp.push(false);
-        timesUp.push(13000*i);
+        timesUp.push(13000*i + 7000);
     }
 
-    // Define down arrows
+    // Down arrows
     flagsDown = [];
     arrowsDown = [];
     var timesDown = [];
     for(var i = 0;i< 77;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = 90 * Math.PI /180;
-        aux.position.set(-8, 100*i, -5);
+        aux.position.set(-8, 100*i + 100, -5);
         arrowsDown.push(aux);
         flagsDown.push(false);
-        timesDown.push(5000*i);
+        timesDown.push(5000*i + 7000);
     }
 
     // Add left arrows
@@ -307,7 +356,7 @@ function loadSongArrows(){
     var idxUp = 0;
     var idxDown = 0;
 
-    // Animate arrows with Tween
+    // Animar flechas con Tween
 
     //Left arrows
     for(var i = 0; i< arrowsLeft.length; i++){
@@ -326,6 +375,7 @@ function loadSongArrows(){
                 scene.remove(aux);
                 flagsLeft[idxLeft] = true;
                 idxLeft+=1;
+                puntuacion-=10;
             }else{
                 idxLeft=flagsLeft.findIndex(element => element === false);
 
@@ -351,6 +401,7 @@ function loadSongArrows(){
                 scene.remove(aux);
                 flagsRight[idxRight] = true;
                 idxRight+=1;
+                puntuacion-=10;
             }else{
                 idxRight=flagsRight.findIndex(element => element === false);
 
@@ -376,6 +427,7 @@ function loadSongArrows(){
                 scene.remove(aux);
                 flagsUp[idxUp] = true;
                 idxUp+=1;
+                puntuacion-=10;
             }else{
                 idxUp=flagsUp.findIndex(element => element === false);
             }
@@ -400,6 +452,7 @@ function loadSongArrows(){
                 scene.remove(aux);
                 flagsDown[idxDown] = true;
                 idxDown+=1;
+                puntuacion-=10;
             }else{
                 idxDown=flagsDown.findIndex(element => element === false);
             }
@@ -478,6 +531,9 @@ function restartArrows(){
 function setupGui(){
     effectController = {
         startSong: function(){
+            if(dancing!=null){
+                dancing.paused = false;
+            }
             if(audio.isPlaying){
                 restartArrows();
             }
@@ -485,6 +541,9 @@ function setupGui(){
         },
         volume: 0.5,
         stop: function(){
+            if(dancing!=null){
+                dancing.paused=true;
+            }
             puntuacion = 0;
             kidxLeft = 0;
             kidxRight = 0;
@@ -499,51 +558,33 @@ function setupGui(){
 
     var gui = new dat.GUI();
     var carpeta = gui.addFolder("Controles Música");
-    carpeta.add(effectController, "startSong").name("Play");
+    carpeta.add(effectController, "startSong").name("Empezar");
     carpeta.add(effectController, "volume",0.0,1.0,0.1).name("Volumen");
     carpeta.add(effectController, "stop").name("Parar");
-}
-
-function loadModel(){
-    let gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('proyecto_final/animation/michelle.glb', (michelle) =>{
-        michelle.scene.traverse(c => {
-            c.castShadow = true;
-            c.receiveShadow = true;
-        });
-        //renderer.gammaOutput = true;
-        michelle.scene.rotation.y = Math.PI;
-        michelle.scene.scale.set(5,5,5);
-        michelle.scene.position.y = 1;
-        mixer = new THREE.AnimationMixer(michelle.scene);
-        const dancing = mixer.clipAction(michelle.animations[0]);
-        dancing.play();
-        scene.add(michelle.scene);
-    });
 }
 
 
 function loadRoom(){
     let path = "images/";
-    let txsuelo = new THREE.TextureLoader().load(path + 'chess.jpg');
+    let txsuelo = new THREE.TextureLoader(manager).load(path + 'chess.jpg');
     txsuelo.magfilter = THREE.LinearFilter;
     txsuelo.minfilter = THREE.LinearFilter;
     txsuelo.repeat.set(4, 4);
     txsuelo.wrapS = txsuelo.wrapT = THREE.RepeatWrapping;
-    let materialBrillante = new THREE.MeshPhongMaterial( {color: 'white', specular: 'white', shininess: 30, map: txsuelo});
+    let bicolor = new THREE.MeshLambertMaterial( {color: 'grey', map: txsuelo});
 
-    let suelo = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialBrillante);
+    let suelo = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), bicolor);
     suelo.rotation.x = -Math.PI/2;
     suelo.castShadow = true;
     suelo.receiveShadow = true;
 
-    let txpared = new THREE.TextureLoader().load(path + 'paredfrente.jpg');
+    let txpared = new THREE.TextureLoader(manager).load(path + 'wall4.jpg');
     txpared.magfilter = THREE.LinearFilter;
     txpared.minfilter = THREE.LinearFilter;
-    txpared.repeat.set(4, 4);
+    txpared.repeat.set(2, 2);
     txpared.wrapS = txpared.wrapT = THREE.RepeatWrapping;
-    let materialPared1 = new THREE.MeshLambertMaterial( {color: 'grey',map:txpared});
-    let materialPared2 = new THREE.MeshBasicMaterial( {color: 'yellow'});
+    let materialPared1 = new THREE.MeshLambertMaterial( {color: 'orange', map:txpared});
+    let materialPared2 = new THREE.MeshBasicMaterial( {color: 'white'});
 
 
     let pared_detras = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared2);
@@ -551,26 +592,41 @@ function loadRoom(){
     pared_detras.castShadow = true;
     pared_detras.receiveShadow = true;
 
-    let pared_lado = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared1);
+    let pared_lado = new THREE.Mesh(new THREE.PlaneGeometry(120, 120, 100, 100), materialPared1);
     pared_lado.rotation.y = -Math.PI/2;
     pared_lado.position.x = 30;
     pared_lado.castShadow = true;
     pared_lado.receiveShadow = true;
 
 
-    let pared_lado2 = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared1);
+    let pared_lado2 = new THREE.Mesh(new THREE.PlaneGeometry(120, 120, 100, 100), materialPared1);
     pared_lado2.rotation.y = Math.PI/2;
     pared_lado2.position.x = -30;
     pared_lado2.castShadow = true;
     pared_lado2.receiveShadow = true;
 
 
-    let txmachine = new THREE.TextureLoader().load('proyecto_final/models/dance/DDR_Diffuse2.png');
+    let gltfLoader = new THREE.GLTFLoader(manager);
+    gltfLoader.load('proyecto_final/animation/michelle.glb', (michelle) =>{
+        michelle.scene.traverse(c => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+        });
+        michelle.scene.rotation.y = Math.PI;
+        michelle.scene.scale.set(5,5,5);
+        michelle.scene.position.y = 1;
+        mixer = new THREE.AnimationMixer(michelle.scene);
+        dancing = mixer.clipAction(michelle.animations[0]);
+        dancing.play();
+        dancing.paused = true;
+        scene.add(michelle.scene);
+    });
+
+    let txmachine = new THREE.TextureLoader(manager).load('proyecto_final/models/dance/DDR_Diffuse2.png');
     txmachine.flipY = false;
     txmachine.encoding = THREE.sRGBEncoding;
-    let lights_down = new THREE.TextureLoader().load('proyecto_final/models/dance/DDR_Emission.png');
+    let lights_down = new THREE.TextureLoader(manager).load('proyecto_final/models/dance/DDR_Emission.png');
     var material = new THREE.MeshStandardMaterial({color:"white", map:txmachine, emissive:lights_down, metalness:0});
-    let gltfLoader = new THREE.GLTFLoader();
     gltfLoader.load('proyecto_final/models/dance/machine.gbl', (danceM) =>{
         danceM.scene.traverse(c => {
             c.castShadow = true;
@@ -655,8 +711,4 @@ function loadRoom(){
 }
 
 init();
-loadRoom();
-loadArrowPanel();
-loadModel();
-setupGui();
 render();
