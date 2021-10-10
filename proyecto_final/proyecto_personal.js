@@ -3,9 +3,12 @@ var renderer, scene, camera, mini_camera, robot, cameraControls;
 
 // ANIMACIÓN DE FLECHAS
 var arrowLeft, arrowRight, arrowUp, arrowDown;
-var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
 var flagsLeft, flagsRight, flagsUp, flagsDown;
 var kidxLeft, kidxRight, kidxUp, kidxDown;
+var idxLeft, idxRight, idxUp, idxDown;
+var timesLeft, timesRight, timesUp, timesDown;
+
+
 
 // PUNTUACIÓN
 var puntuacion_inicial = 0;
@@ -273,6 +276,93 @@ function loadArrowPanel(){
     scene.add(panel);
 }
 
+function animateArrow(type, i){
+    if(type == 'left'){
+        let animate = new TWEEN.Tween(arrowsLeft[i].position )
+                .to( { x:[0],
+                        y:[20],
+                        z:[-5]}, timesLeft[i])
+                .interpolation( TWEEN.Interpolation.Bezier )
+                .easing( TWEEN.Easing.Linear.None )
+                .start();
+
+        animate.onComplete(function() {
+            if(flagsLeft[idxLeft] == false){
+                var aux = arrowsLeft[idxLeft];
+                scene.remove(aux);
+                flagsLeft[idxLeft] = true;
+                idxLeft+=1;
+                puntuacion-=10;
+            }else{
+                idxLeft=flagsLeft.findIndex(element => element === false);
+            }
+        });
+    }else if(type =='right'){
+        var animate = new TWEEN.Tween( arrowsRight[i].position )
+                      .to( { x:[ 16],
+	                         y:[ 20],
+	                         z:[ -5]}, timesRight[i])
+	                  .interpolation( TWEEN.Interpolation.Bezier )
+	                  .easing( TWEEN.Easing.Linear.None )
+                      .start();
+        
+        animate.onComplete( function() {
+            if(flagsRight[idxRight] == false){
+                var aux = arrowsRight[idxRight];
+                scene.remove(aux);
+                flagsRight[idxRight] = true;
+                idxRight+=1;
+                puntuacion-=10;
+            }else{
+                idxRight=flagsRight.findIndex(element => element === false);
+
+            }
+        });
+    }else if(type=='up'){
+        var arrow_target = arrowsUp[i];
+        var animate = new TWEEN.Tween( arrow_target.position )
+                      .to( { x:[  -16],
+	                         y:[ 23],
+	                         z:[  -5]}, timesUp[i])
+	                  .interpolation( TWEEN.Interpolation.Bezier )
+	                  .easing( TWEEN.Easing.Linear.None )
+                      .start();
+        
+        animate.onComplete( function() {
+            if(flagsUp[idxUp] == false){
+                var aux = arrowsUp[idxUp];
+                scene.remove(aux);
+                flagsUp[idxUp] = true;
+                idxUp+=1;
+                puntuacion-=10;
+            }else{
+                idxUp=flagsUp.findIndex(element => element === false);
+            }
+        });
+    }else if(type=='down'){
+        var arrow_target = arrowsDown[i];
+        var animate = new TWEEN.Tween( arrow_target.position )
+                      .to( { x:[ -8],
+	                         y:[ 17],
+	                         z:[ -5]}, timesDown[i])
+	                  .interpolation( TWEEN.Interpolation.Bezier )
+	                  .easing( TWEEN.Easing.Linear.None )
+                      .start();
+        
+        animate.onComplete( function() {
+            if(flagsDown[idxDown] == false){
+                var aux = arrowsDown[idxDown];
+                scene.remove(aux);
+                flagsDown[idxDown] = true;
+                idxDown+=1;
+                puntuacion-=10;
+            }else{
+                idxDown=flagsDown.findIndex(element => element === false);
+            }
+        });
+    }
+}
+
 
 function loadSongArrows(){
     var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
@@ -281,52 +371,56 @@ function loadSongArrows(){
     // Left arrows
     flagsLeft = [];
     arrowsLeft = [];
-    var timesLeft = [];
-    for(var i = 0;i< 77;i++){
+    timesLeft = [];
+    for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
-        aux.position.set(0, 100*i + 400, -5);
+        aux.position.set(0, 70, -5);
         arrowsLeft.push(aux);
         flagsLeft.push(false);
-        timesLeft.push(4000*i + 3000);
+        let randomTime = ((Math.random()*7000) + 3000);
+        timesLeft.push( randomTime );
     }
 
     // Right arrows
     flagsRight = [];
     arrowsRight = [];
-    var timesRight = [];
-    for(var i = 0;i< 77;i++){
+    timesRight = [];
+    for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = Math.PI;
-        aux.position.set(16, 100*i + 300, -5);
+        aux.position.set(16, 70, -5);
         arrowsRight.push(aux);
         flagsRight.push(false);
-        timesRight.push(7000*i + 5000);
+        let randomTime = ((Math.random()*7000) + 2000);
+        timesRight.push(randomTime );
     }
 
     // Up arrows
     flagsUp = [];
     arrowsUp = [];
-    var timesUp = [];
-    for(var i = 0;i< 77;i++){
+    timesUp = [];
+    for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = - 90 * Math.PI / 180;
-        aux.position.set(-16, 100*i + 200, -5);
+        aux.position.set(-16, 70, -5);
         arrowsUp.push(aux);
         flagsUp.push(false);
-        timesUp.push(13000*i + 7000);
+        let randomTime = ((Math.random()*7000) + 3000);
+        timesUp.push(randomTime );
     }
 
     // Down arrows
     flagsDown = [];
     arrowsDown = [];
-    var timesDown = [];
-    for(var i = 0;i< 77;i++){
+    timesDown = [];
+    for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = 90 * Math.PI /180;
-        aux.position.set(-8, 100*i + 100, -5);
+        aux.position.set(-8, 70, -5);
         arrowsDown.push(aux);
         flagsDown.push(false);
-        timesDown.push(5000*i + 7000);
+        let randomTime = ((Math.random()*7000 + 2000));
+        timesDown.push(randomTime);
     }
 
     // Add left arrows
@@ -351,112 +445,41 @@ function loadSongArrows(){
 
 
     // Indexes
-    var idxLeft = 0;
-    var idxRight = 0;
-    var idxUp = 0;
-    var idxDown = 0;
+    idxLeft = 0;
+    idxRight = 0;
+    idxUp = 0;
+    idxDown = 0;
 
     // Animar flechas con Tween
-
     //Left arrows
+    let accumulated_time = 0;
     for(var i = 0; i< arrowsLeft.length; i++){
-        var arrow_target = arrowsLeft[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[   0,  0],
-	                         y:[   20, 20],
-	                         z:[   -5,  -5]}, timesLeft[i])
-	                  .interpolation( TWEEN.Interpolation.Bezier )
-	                  .easing( TWEEN.Easing.Linear.None )
-                      .start();
-        
-        animate.onComplete( function() {
-            if(flagsLeft[idxLeft] == false){
-                var aux = arrowsLeft[idxLeft];
-                scene.remove(aux);
-                flagsLeft[idxLeft] = true;
-                idxLeft+=1;
-                puntuacion-=10;
-            }else{
-                idxLeft=flagsLeft.findIndex(element => element === false);
 
-            }
-        });
+        setTimeout(animateArrow.bind(null, 'left', i), accumulated_time);
+        accumulated_time += timesLeft[i] + Math.random()*3000;
     }
 
 
      //Right arrows
+    accumulated_time = 0;
      for(var i = 0; i< arrowsRight.length; i++){
-        var arrow_target = arrowsRight[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[   16, 16],
-	                         y:[   20, 20],
-	                         z:[   -5,  -5]}, timesRight[i])
-	                  .interpolation( TWEEN.Interpolation.Bezier )
-	                  .easing( TWEEN.Easing.Linear.None )
-                      .start();
-        
-        animate.onComplete( function() {
-            if(flagsRight[idxRight] == false){
-                var aux = arrowsRight[idxRight];
-                scene.remove(aux);
-                flagsRight[idxRight] = true;
-                idxRight+=1;
-                puntuacion-=10;
-            }else{
-                idxRight=flagsRight.findIndex(element => element === false);
-
-            }
-        });
+        setTimeout(animateArrow.bind(null, 'right', i), accumulated_time);
+        accumulated_time += timesRight[i] + Math.random()*3000;
     }
 
 
      //Up arrows
-     for(var i = 0; i< arrowsUp.length; i++){
-        var arrow_target = arrowsUp[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[   -16,  -16],
-	                         y:[   23, 23],
-	                         z:[   -5,  -5]}, timesUp[i])
-	                  .interpolation( TWEEN.Interpolation.Bezier )
-	                  .easing( TWEEN.Easing.Linear.None )
-                      .start();
-        
-        animate.onComplete( function() {
-            if(flagsUp[idxUp] == false){
-                var aux = arrowsUp[idxUp];
-                scene.remove(aux);
-                flagsUp[idxUp] = true;
-                idxUp+=1;
-                puntuacion-=10;
-            }else{
-                idxUp=flagsUp.findIndex(element => element === false);
-            }
-        });
+    accumulated_time = 0;
+    for(var i = 0; i< arrowsUp.length; i++){
+        setTimeout(animateArrow.bind(null, 'up', i), accumulated_time);
+        accumulated_time += timesUp[i] + Math.random()*3000;
     }
 
-
      //Down arrows
-     for(var i = 0; i< arrowsDown.length; i++){
-        var arrow_target = arrowsDown[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[   -8,  -8],
-	                         y:[  17, 17],
-	                         z:[   -5,  -5]}, timesDown[i])
-	                  .interpolation( TWEEN.Interpolation.Bezier )
-	                  .easing( TWEEN.Easing.Linear.None )
-                      .start();
-        
-        animate.onComplete( function() {
-            if(flagsDown[idxDown] == false){
-                var aux = arrowsDown[idxDown];
-                scene.remove(aux);
-                flagsDown[idxDown] = true;
-                idxDown+=1;
-                puntuacion-=10;
-            }else{
-                idxDown=flagsDown.findIndex(element => element === false);
-            }
-        });
+    accumulated_time = 0;
+    for(var i = 0; i< arrowsDown.length; i++){
+        setTimeout(animateArrow.bind(null, 'down', i), accumulated_time);
+        accumulated_time += timesDown[i] + Math.random()*3000;
     }
 }
 
@@ -557,7 +580,7 @@ function setupGui(){
     }
 
     var gui = new dat.GUI();
-    var carpeta = gui.addFolder("Controles Música");
+    var carpeta = gui.addFolder("Controles");
     carpeta.add(effectController, "startSong").name("Empezar");
     carpeta.add(effectController, "volume",0.0,1.0,0.1).name("Volumen");
     carpeta.add(effectController, "stop").name("Parar");
