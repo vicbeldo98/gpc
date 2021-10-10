@@ -561,6 +561,21 @@ function loadSong(){
         audio.currentTime = 0;
 		audio.setBuffer(buffer);
 		audio.play();
+        audio.source.onended = function() {
+            console.log('Darude sandstorm ended');
+            clearTimeouts();
+            if(dancing!=null){
+                dancing.paused=true;
+            }
+            kidxLeft = 0;
+            kidxRight = 0;
+            kidxUp = 0;
+            kidxDown = 0;
+            idxLeft = 0;
+            idxRight = 0;
+            idxUp = 0;
+            idxDown = 0;
+        };
 	});
     loadSongArrows();
 }
