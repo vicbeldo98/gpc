@@ -3,9 +3,12 @@ var renderer, scene, camera, mini_camera, robot, cameraControls;
 
 // ANIMACIÓN DE FLECHAS
 var arrowLeft, arrowRight, arrowUp, arrowDown;
-var arrowsLeft, arrowsRight, arrowsUp, arrowsDown;
 var flagsLeft, flagsRight, flagsUp, flagsDown;
 var kidxLeft, kidxRight, kidxUp, kidxDown;
+var idxLeft, idxRight, idxUp, idxDown;
+var timesLeft, timesRight, timesUp, timesDown;
+
+
 
 // PUNTUACIÓN
 var puntuacion_inicial = 0;
@@ -41,6 +44,9 @@ var antes = Date.now();
 
 // TEXTURAS
 var blackTexture = new THREE.MeshPhongMaterial( {color: 'black', shininess:250} );
+var redTexture = new THREE.MeshPhongMaterial( {color: 'red', shininess:250} );
+var greenTexture = new THREE.MeshPhongMaterial( {color: 'green', shininess:250} );
+
 
 
 function init(){
@@ -72,7 +78,7 @@ function init(){
 
     // Crear camara principal
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(0,20,40);
+    camera.position.set(0,20,30);
     camera.lookAt(0,20,0);
 
     // Inicializar contador del juego
@@ -94,11 +100,15 @@ function init(){
                 }
                 target_arrow = arrowsLeft[kidxLeft];
                 if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
+                    arrowLeft.material = greenTexture;
+                    setTimeout(function(){arrowLeft.material= blackTexture},300);
                     puntuacion +=10;
                     flagsLeft[kidxLeft]=true;
                     kidxLeft+=1;
                     scene.remove(target_arrow);
                 }else{
+                    arrowLeft.material = redTexture;
+                    setTimeout(function(){arrowLeft.material= blackTexture},300);
                     puntuacion -=5;
                 }
             }
@@ -109,11 +119,15 @@ function init(){
                 }
                 target_arrow = arrowsRight[kidxRight];
                 if(Math.abs(target_arrow.position.y - arrowRight.position.y) <= 3){
+                    arrowRight.material = greenTexture;
+                    setTimeout(function(){arrowRight.material= blackTexture},300);
                     puntuacion +=10;
                     flagsRight[kidxRight]=true;
                     kidxRight+=1;
                     scene.remove(target_arrow);
                 } else{
+                    arrowRight.material = redTexture;
+                    setTimeout(function(){arrowRight.material= blackTexture},300);
                     puntuacion -=5;
                 }
             }
@@ -123,11 +137,15 @@ function init(){
                 }
                 target_arrow = arrowsUp[kidxUp];
                 if(Math.abs(target_arrow.position.y - arrowUp.position.y) <= 3){
+                    arrowUp.material = greenTexture;
+                    setTimeout(function(){arrowUp.material= blackTexture},300);
                     puntuacion +=10;
                     flagsUp[kidxUp]=true;
                     kidxUp+=1;
                     scene.remove(target_arrow);
                 } else{
+                    arrowUp.material = redTexture;
+                    setTimeout(function(){arrowUp.material= blackTexture},300);
                     puntuacion -=5;
                 }
             }
@@ -137,11 +155,15 @@ function init(){
                 }
                 target_arrow = arrowsDown[kidxDown];
                 if(Math.abs(target_arrow.position.y - arrowDown.position.y) <= 3){
+                    arrowDown.material = greenTexture;
+                    setTimeout(function(){arrowDown.material= blackTexture},300);
                     puntuacion +=10;
                     flagsDown[kidxDown]=true;
                     kidxDown+=1;
                     scene.remove(target_arrow);
                 }else{
+                    arrowDown.material = redTexture;
+                    setTimeout(function(){arrowDown.material= blackTexture},300);
                     puntuacion -=5;
                 }
             }
@@ -239,7 +261,7 @@ function loadPunctuation(){
         var  textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
         text = new THREE.Mesh(textGeo , textMaterial);
         text.scale.set(0.5,0.5,0.5);
-        text.position.set(-27, 50 , -4);
+        text.position.set(-26, 40 , -4);
         scene.add(text);
     });
 }
@@ -273,60 +295,150 @@ function loadArrowPanel(){
     scene.add(panel);
 }
 
+function animateArrow(type, i){
+    if(type == 'left'){
+        let animate = new TWEEN.Tween(arrowsLeft[i].position )
+                .to( { x:[0],
+                        y:[20],
+                        z:[-5]}, timesLeft[i])
+                .interpolation( TWEEN.Interpolation.Bezier )
+                .easing( TWEEN.Easing.Linear.None )
+                .start();
+
+        animate.onComplete(function() {
+            if(flagsLeft[idxLeft] == false){
+                var aux = arrowsLeft[idxLeft];
+                scene.remove(aux);
+                flagsLeft[idxLeft] = true;
+                idxLeft+=1;
+                puntuacion-=10;
+            }else{
+                idxLeft=flagsLeft.findIndex(element => element === false);
+            }
+        });
+    }else if(type =='right'){
+        var animate = new TWEEN.Tween( arrowsRight[i].position )
+                      .to( { x:[ 16],
+	                         y:[ 20],
+	                         z:[ -5]}, timesRight[i])
+	                  .interpolation( TWEEN.Interpolation.Bezier )
+	                  .easing( TWEEN.Easing.Linear.None )
+                      .start();
+        
+        animate.onComplete( function() {
+            if(flagsRight[idxRight] == false){
+                var aux = arrowsRight[idxRight];
+                scene.remove(aux);
+                flagsRight[idxRight] = true;
+                idxRight+=1;
+                puntuacion-=10;
+            }else{
+                idxRight=flagsRight.findIndex(element => element === false);
+
+            }
+        });
+    }else if(type=='up'){
+        var arrow_target = arrowsUp[i];
+        var animate = new TWEEN.Tween( arrow_target.position )
+                      .to( { x:[  -16],
+	                         y:[ 23],
+	                         z:[  -5]}, timesUp[i])
+	                  .interpolation( TWEEN.Interpolation.Bezier )
+	                  .easing( TWEEN.Easing.Linear.None )
+                      .start();
+        
+        animate.onComplete( function() {
+            if(flagsUp[idxUp] == false){
+                var aux = arrowsUp[idxUp];
+                scene.remove(aux);
+                flagsUp[idxUp] = true;
+                idxUp+=1;
+                puntuacion-=10;
+            }else{
+                idxUp=flagsUp.findIndex(element => element === false);
+            }
+        });
+    }else if(type=='down'){
+        var arrow_target = arrowsDown[i];
+        var animate = new TWEEN.Tween( arrow_target.position )
+                      .to( { x:[ -8],
+	                         y:[ 17],
+	                         z:[ -5]}, timesDown[i])
+	                  .interpolation( TWEEN.Interpolation.Bezier )
+	                  .easing( TWEEN.Easing.Linear.None )
+                      .start();
+        
+        animate.onComplete( function() {
+            if(flagsDown[idxDown] == false){
+                var aux = arrowsDown[idxDown];
+                scene.remove(aux);
+                flagsDown[idxDown] = true;
+                idxDown+=1;
+                puntuacion-=10;
+            }else{
+                idxDown=flagsDown.findIndex(element => element === false);
+            }
+        });
+    }
+}
+
 
 function loadSongArrows(){
     var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
-
     // Flechas definidas por tiempos en la canción
     // Left arrows
     flagsLeft = [];
     arrowsLeft = [];
-    var timesLeft = [];
-    for(var i = 0;i< 77;i++){
+    timesLeft = [];
+    for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
-        aux.position.set(0, 100*i + 400, -5);
+        aux.position.set(0, 70, -5);
         arrowsLeft.push(aux);
         flagsLeft.push(false);
-        timesLeft.push(4000*i + 3000);
+        let randomTime = ((Math.random()*7000) + 3000);
+        timesLeft.push( randomTime );
     }
 
     // Right arrows
     flagsRight = [];
     arrowsRight = [];
-    var timesRight = [];
-    for(var i = 0;i< 77;i++){
+    timesRight = [];
+    for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = Math.PI;
-        aux.position.set(16, 100*i + 300, -5);
+        aux.position.set(16, 70, -5);
         arrowsRight.push(aux);
         flagsRight.push(false);
-        timesRight.push(7000*i + 5000);
+        let randomTime = ((Math.random()*7000) + 2000);
+        timesRight.push(randomTime );
     }
 
     // Up arrows
     flagsUp = [];
     arrowsUp = [];
-    var timesUp = [];
-    for(var i = 0;i< 77;i++){
+    timesUp = [];
+    for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = - 90 * Math.PI / 180;
-        aux.position.set(-16, 100*i + 200, -5);
+        aux.position.set(-16, 70, -5);
         arrowsUp.push(aux);
         flagsUp.push(false);
-        timesUp.push(13000*i + 7000);
+        let randomTime = ((Math.random()*7000) + 3000);
+        timesUp.push(randomTime );
     }
 
     // Down arrows
     flagsDown = [];
     arrowsDown = [];
-    var timesDown = [];
-    for(var i = 0;i< 77;i++){
+    timesDown = [];
+    for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = 90 * Math.PI /180;
-        aux.position.set(-8, 100*i + 100, -5);
+        aux.position.set(-8, 70, -5);
         arrowsDown.push(aux);
         flagsDown.push(false);
-        timesDown.push(5000*i + 7000);
+        let randomTime = ((Math.random()*7000 + 2000));
+        timesDown.push(randomTime);
     }
 
     // Add left arrows
@@ -351,112 +463,41 @@ function loadSongArrows(){
 
 
     // Indexes
-    var idxLeft = 0;
-    var idxRight = 0;
-    var idxUp = 0;
-    var idxDown = 0;
+    idxLeft = 0;
+    idxRight = 0;
+    idxUp = 0;
+    idxDown = 0;
 
     // Animar flechas con Tween
-
     //Left arrows
+    let accumulated_time = 0;
     for(var i = 0; i< arrowsLeft.length; i++){
-        var arrow_target = arrowsLeft[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[   0,  0],
-	                         y:[   20, 20],
-	                         z:[   -5,  -5]}, timesLeft[i])
-	                  .interpolation( TWEEN.Interpolation.Bezier )
-	                  .easing( TWEEN.Easing.Linear.None )
-                      .start();
-        
-        animate.onComplete( function() {
-            if(flagsLeft[idxLeft] == false){
-                var aux = arrowsLeft[idxLeft];
-                scene.remove(aux);
-                flagsLeft[idxLeft] = true;
-                idxLeft+=1;
-                puntuacion-=10;
-            }else{
-                idxLeft=flagsLeft.findIndex(element => element === false);
 
-            }
-        });
+        setTimeout(animateArrow.bind(null, 'left', i), accumulated_time);
+        accumulated_time += timesLeft[i] + Math.random()*3000;
     }
 
 
      //Right arrows
+    accumulated_time = 0;
      for(var i = 0; i< arrowsRight.length; i++){
-        var arrow_target = arrowsRight[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[   16, 16],
-	                         y:[   20, 20],
-	                         z:[   -5,  -5]}, timesRight[i])
-	                  .interpolation( TWEEN.Interpolation.Bezier )
-	                  .easing( TWEEN.Easing.Linear.None )
-                      .start();
-        
-        animate.onComplete( function() {
-            if(flagsRight[idxRight] == false){
-                var aux = arrowsRight[idxRight];
-                scene.remove(aux);
-                flagsRight[idxRight] = true;
-                idxRight+=1;
-                puntuacion-=10;
-            }else{
-                idxRight=flagsRight.findIndex(element => element === false);
-
-            }
-        });
+        setTimeout(animateArrow.bind(null, 'right', i), accumulated_time);
+        accumulated_time += timesRight[i] + Math.random()*3000;
     }
 
 
      //Up arrows
-     for(var i = 0; i< arrowsUp.length; i++){
-        var arrow_target = arrowsUp[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[   -16,  -16],
-	                         y:[   23, 23],
-	                         z:[   -5,  -5]}, timesUp[i])
-	                  .interpolation( TWEEN.Interpolation.Bezier )
-	                  .easing( TWEEN.Easing.Linear.None )
-                      .start();
-        
-        animate.onComplete( function() {
-            if(flagsUp[idxUp] == false){
-                var aux = arrowsUp[idxUp];
-                scene.remove(aux);
-                flagsUp[idxUp] = true;
-                idxUp+=1;
-                puntuacion-=10;
-            }else{
-                idxUp=flagsUp.findIndex(element => element === false);
-            }
-        });
+    accumulated_time = 0;
+    for(var i = 0; i< arrowsUp.length; i++){
+        setTimeout(animateArrow.bind(null, 'up', i), accumulated_time);
+        accumulated_time += timesUp[i] + Math.random()*3000;
     }
 
-
      //Down arrows
-     for(var i = 0; i< arrowsDown.length; i++){
-        var arrow_target = arrowsDown[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[   -8,  -8],
-	                         y:[  17, 17],
-	                         z:[   -5,  -5]}, timesDown[i])
-	                  .interpolation( TWEEN.Interpolation.Bezier )
-	                  .easing( TWEEN.Easing.Linear.None )
-                      .start();
-        
-        animate.onComplete( function() {
-            if(flagsDown[idxDown] == false){
-                var aux = arrowsDown[idxDown];
-                scene.remove(aux);
-                flagsDown[idxDown] = true;
-                idxDown+=1;
-                puntuacion-=10;
-            }else{
-                idxDown=flagsDown.findIndex(element => element === false);
-            }
-        });
+    accumulated_time = 0;
+    for(var i = 0; i< arrowsDown.length; i++){
+        setTimeout(animateArrow.bind(null, 'down', i), accumulated_time);
+        accumulated_time += timesDown[i] + Math.random()*3000;
     }
 }
 
@@ -531,6 +572,7 @@ function restartArrows(){
 function setupGui(){
     effectController = {
         startSong: function(){
+            puntuacion = 0;
             if(dancing!=null){
                 dancing.paused = false;
             }
@@ -557,7 +599,7 @@ function setupGui(){
     }
 
     var gui = new dat.GUI();
-    var carpeta = gui.addFolder("Controles Música");
+    var carpeta = gui.addFolder("Controles");
     carpeta.add(effectController, "startSong").name("Empezar");
     carpeta.add(effectController, "volume",0.0,1.0,0.1).name("Volumen");
     carpeta.add(effectController, "stop").name("Parar");
@@ -607,7 +649,7 @@ function loadRoom(){
 
 
     let gltfLoader = new THREE.GLTFLoader(manager);
-    gltfLoader.load('proyecto_final/animation/michelle.glb', (michelle) =>{
+    gltfLoader.load('proyecto_final/animation/hiphop1.glb', (michelle) =>{
         michelle.scene.traverse(c => {
             c.castShadow = true;
             c.receiveShadow = true;
@@ -615,6 +657,7 @@ function loadRoom(){
         michelle.scene.rotation.y = Math.PI;
         michelle.scene.scale.set(5,5,5);
         michelle.scene.position.y = 1;
+        michelle.scene.position.x = 0.5;
         mixer = new THREE.AnimationMixer(michelle.scene);
         dancing = mixer.clipAction(michelle.animations[0]);
         dancing.play();
@@ -648,8 +691,8 @@ function loadRoom(){
         children.shift();
         hockey.scene.children = children;
         hockey.scene.scale.set(3.0, 3.0, 3.0);
-        hockey.scene.position.z = 15;
-        hockey.scene.position.x = -15;
+        hockey.scene.position.z = 5;
+        hockey.scene.position.x = 15;
         scene.add(hockey.scene);
     });
 
@@ -680,28 +723,6 @@ function loadRoom(){
         tragaP.scene.position.x = -20;
         tragaP.scene.position.y = 7.3;
         scene.add(tragaP.scene);
-    });
-
-    gltfLoader.load('proyecto_final/models/table/TableArcade.glb', (table) =>{
-        table.scene.traverse(c => {
-            c.castShadow = true;
-            c.receiveShadow = true;
-        });
-
-        let materialBase = new THREE.MeshPhongMaterial({color: 0xc60505, shininess:150});
-        table.scene.children[2].material = materialBase;
-        table.scene.children[8].material = materialBase;
-
-        let materialUp = new THREE.MeshLambertMaterial( { color: 'black'} );
-        table.scene.children[3].material = materialUp;
-
-        var children = table.scene.children;
-        children.pop();
-        table.scene.children = children;
-        table.scene.scale.set(2.5, 2.0, 2.5);
-        table.scene.position.x = 15;
-        table.scene.position.z = 12;
-        scene.add(table.scene);
     });
 
     scene.add(suelo);
