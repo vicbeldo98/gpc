@@ -7,6 +7,7 @@ var flagsLeft, flagsRight, flagsUp, flagsDown;
 var kidxLeft, kidxRight, kidxUp, kidxDown;
 var idxLeft, idxRight, idxUp, idxDown;
 var timesLeft, timesRight, timesUp, timesDown;
+var timeouts;
 
 
 
@@ -78,11 +79,12 @@ function init(){
 
     // Crear camara principal
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(0,20,30);
+    camera.position.set(0,20,35);
     camera.lookAt(0,20,0);
 
     // Inicializar contador del juego
-    puntuacion = puntuacion_inicial;    
+    puntuacion = puntuacion_inicial;
+    timeouts = []
 
     // Gestionar teclado
     keyboard = new THREEx.KeyboardState(renderer.domElement);
@@ -93,7 +95,7 @@ function init(){
     kidxUp = 0;
     kidxDown = 0;
     keyboard.domElement.addEventListener('keydown', function (event) {
-        if(!event.repeat){
+        if(!event.repeat & audio.isPlaying){
             if (keyboard.eventMatches(event, 'left')) {
                 if(flagsLeft[kidxLeft] == true){
                     kidxLeft=flagsLeft.findIndex(element => element === false);
@@ -101,7 +103,7 @@ function init(){
                 target_arrow = arrowsLeft[kidxLeft];
                 if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
                     arrowLeft.material = greenTexture;
-                    setTimeout(function(){arrowLeft.material= blackTexture},300);
+                    let aux = setTimeout(function(){arrowLeft.material= blackTexture},300);
                     puntuacion +=10;
                     flagsLeft[kidxLeft]=true;
                     kidxLeft+=1;
@@ -191,7 +193,7 @@ function init(){
     scene.add(luzFocal);
 
     const light = new THREE.PointLight( 0xfff000, 1, 100 );
-    light.position.set( 0, 10, -6 );
+    light.position.set( 0, 10, -2 );
     light.castShadow = true;
     scene.add( light );
 
@@ -279,13 +281,13 @@ function loadArrowPanel(){
     arrowLeft.position.set(0,20,-5);
 
     arrowRight.rotation.z = Math.PI;
-    arrowRight.position.set(16,20,-5);
+    arrowRight.position.set(15,20,-5);
 
     arrowUp.rotation.z = - 90 * Math.PI / 180;
     arrowUp.position.set(-16,23,-5);
 
     arrowDown.rotation.z = 90 * Math.PI /180;
-    arrowDown.position.set(-8,17,-5);
+    arrowDown.position.set(-7,17,-5);
 
     // Insertarlas
     panel.add(arrowLeft);
@@ -318,7 +320,7 @@ function animateArrow(type, i){
         });
     }else if(type =='right'){
         var animate = new TWEEN.Tween( arrowsRight[i].position )
-                      .to( { x:[ 16],
+                      .to( { x:[ 15],
 	                         y:[ 20],
 	                         z:[ -5]}, timesRight[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
@@ -361,7 +363,7 @@ function animateArrow(type, i){
     }else if(type=='down'){
         var arrow_target = arrowsDown[i];
         var animate = new TWEEN.Tween( arrow_target.position )
-                      .to( { x:[ -8],
+                      .to( { x:[ -7],
 	                         y:[ 17],
 	                         z:[ -5]}, timesDown[i])
 	                  .interpolation( TWEEN.Interpolation.Bezier )
@@ -406,7 +408,7 @@ function loadSongArrows(){
     for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = Math.PI;
-        aux.position.set(16, 70, -5);
+        aux.position.set(15, 70, -5);
         arrowsRight.push(aux);
         flagsRight.push(false);
         let randomTime = ((Math.random()*7000) + 2000);
@@ -434,7 +436,7 @@ function loadSongArrows(){
     for(var i = 0;i< 100;i++){
         var aux = arrowGeometry(material);
         aux.rotation.z = 90 * Math.PI /180;
-        aux.position.set(-8, 70, -5);
+        aux.position.set(-7, 70, -5);
         arrowsDown.push(aux);
         flagsDown.push(false);
         let randomTime = ((Math.random()*7000 + 2000));
@@ -471,9 +473,11 @@ function loadSongArrows(){
     // Animar flechas con Tween
     //Left arrows
     let accumulated_time = 0;
+    timeouts = [];
     for(var i = 0; i< arrowsLeft.length; i++){
 
-        setTimeout(animateArrow.bind(null, 'left', i), accumulated_time);
+        var aux = setTimeout(animateArrow.bind(null, 'left', i), accumulated_time);
+        timeouts.push(aux);
         accumulated_time += timesLeft[i] + Math.random()*3000;
     }
 
@@ -481,7 +485,8 @@ function loadSongArrows(){
      //Right arrows
     accumulated_time = 0;
      for(var i = 0; i< arrowsRight.length; i++){
-        setTimeout(animateArrow.bind(null, 'right', i), accumulated_time);
+        var aux = setTimeout(animateArrow.bind(null, 'right', i), accumulated_time);
+        timeouts.push(aux);
         accumulated_time += timesRight[i] + Math.random()*3000;
     }
 
@@ -489,16 +494,25 @@ function loadSongArrows(){
      //Up arrows
     accumulated_time = 0;
     for(var i = 0; i< arrowsUp.length; i++){
-        setTimeout(animateArrow.bind(null, 'up', i), accumulated_time);
+        var aux = setTimeout(animateArrow.bind(null, 'up', i), accumulated_time);
+        timeouts.push(aux);
         accumulated_time += timesUp[i] + Math.random()*3000;
     }
 
      //Down arrows
     accumulated_time = 0;
     for(var i = 0; i< arrowsDown.length; i++){
-        setTimeout(animateArrow.bind(null, 'down', i), accumulated_time);
+        var aux = setTimeout(animateArrow.bind(null, 'down', i), accumulated_time);
+        timeouts.push(aux);
         accumulated_time += timesDown[i] + Math.random()*3000;
     }
+}
+
+function clearTimeouts(){
+    for(var i =0; i< timeouts.length; i++){
+        clearTimeout(timeouts[i]);
+    }
+    timeouts = []
 }
 
 function arrowGeometry(material){
@@ -572,10 +586,20 @@ function restartArrows(){
 function setupGui(){
     effectController = {
         startSong: function(){
+            clearTimeouts();
             puntuacion = 0;
             if(dancing!=null){
                 dancing.paused = false;
             }
+            puntuacion = 0;
+            kidxLeft = 0;
+            kidxRight = 0;
+            kidxUp = 0;
+            kidxDown = 0;
+            idxLeft = 0;
+            idxRight = 0;
+            idxUp = 0;
+            idxDown = 0;
             if(audio.isPlaying){
                 restartArrows();
             }
@@ -583,6 +607,7 @@ function setupGui(){
         },
         volume: 0.5,
         stop: function(){
+            clearTimeouts();
             if(dancing!=null){
                 dancing.paused=true;
             }
@@ -591,6 +616,10 @@ function setupGui(){
             kidxRight = 0;
             kidxUp = 0;
             kidxDown = 0;
+            idxLeft = 0;
+            idxRight = 0;
+            idxUp = 0;
+            idxDown = 0;
             if(audio.isPlaying){
                 restartArrows();
                 audio.stop();
@@ -626,7 +655,7 @@ function loadRoom(){
     txpared.repeat.set(2, 2);
     txpared.wrapS = txpared.wrapT = THREE.RepeatWrapping;
     let materialPared1 = new THREE.MeshLambertMaterial( {color: 'orange', map:txpared});
-    let materialPared2 = new THREE.MeshBasicMaterial( {color: 'white'});
+    let materialPared2 = new THREE.MeshLambertMaterial( {color: 0x6a9eda});
 
 
     let pared_detras = new THREE.Mesh(new THREE.PlaneGeometry(140, 140, 100, 100), materialPared2);
@@ -634,14 +663,14 @@ function loadRoom(){
     pared_detras.castShadow = true;
     pared_detras.receiveShadow = true;
 
-    let pared_lado = new THREE.Mesh(new THREE.PlaneGeometry(120, 120, 100, 100), materialPared1);
+    let pared_lado = new THREE.Mesh(new THREE.PlaneGeometry(120, 120, 100, 100), materialPared2);
     pared_lado.rotation.y = -Math.PI/2;
     pared_lado.position.x = 30;
     pared_lado.castShadow = true;
     pared_lado.receiveShadow = true;
 
 
-    let pared_lado2 = new THREE.Mesh(new THREE.PlaneGeometry(120, 120, 100, 100), materialPared1);
+    let pared_lado2 = new THREE.Mesh(new THREE.PlaneGeometry(120, 120, 100, 100), materialPared2);
     pared_lado2.rotation.y = Math.PI/2;
     pared_lado2.position.x = -30;
     pared_lado2.castShadow = true;
