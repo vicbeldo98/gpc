@@ -44,6 +44,9 @@ var antes = Date.now();
 
 // TEXTURAS
 var blackTexture = new THREE.MeshPhongMaterial( {color: 'black', shininess:250} );
+var redTexture = new THREE.MeshPhongMaterial( {color: 'red', shininess:250} );
+var greenTexture = new THREE.MeshPhongMaterial( {color: 'green', shininess:250} );
+
 
 
 function init(){
@@ -75,7 +78,7 @@ function init(){
 
     // Crear camara principal
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(0,20,40);
+    camera.position.set(0,20,30);
     camera.lookAt(0,20,0);
 
     // Inicializar contador del juego
@@ -97,11 +100,15 @@ function init(){
                 }
                 target_arrow = arrowsLeft[kidxLeft];
                 if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
+                    arrowLeft.material = greenTexture;
+                    setTimeout(function(){arrowLeft.material= blackTexture},300);
                     puntuacion +=10;
                     flagsLeft[kidxLeft]=true;
                     kidxLeft+=1;
                     scene.remove(target_arrow);
                 }else{
+                    arrowLeft.material = redTexture;
+                    setTimeout(function(){arrowLeft.material= blackTexture},300);
                     puntuacion -=5;
                 }
             }
@@ -112,11 +119,15 @@ function init(){
                 }
                 target_arrow = arrowsRight[kidxRight];
                 if(Math.abs(target_arrow.position.y - arrowRight.position.y) <= 3){
+                    arrowRight.material = greenTexture;
+                    setTimeout(function(){arrowRight.material= blackTexture},300);
                     puntuacion +=10;
                     flagsRight[kidxRight]=true;
                     kidxRight+=1;
                     scene.remove(target_arrow);
                 } else{
+                    arrowRight.material = redTexture;
+                    setTimeout(function(){arrowRight.material= blackTexture},300);
                     puntuacion -=5;
                 }
             }
@@ -126,11 +137,15 @@ function init(){
                 }
                 target_arrow = arrowsUp[kidxUp];
                 if(Math.abs(target_arrow.position.y - arrowUp.position.y) <= 3){
+                    arrowUp.material = greenTexture;
+                    setTimeout(function(){arrowUp.material= blackTexture},300);
                     puntuacion +=10;
                     flagsUp[kidxUp]=true;
                     kidxUp+=1;
                     scene.remove(target_arrow);
                 } else{
+                    arrowUp.material = redTexture;
+                    setTimeout(function(){arrowUp.material= blackTexture},300);
                     puntuacion -=5;
                 }
             }
@@ -140,11 +155,15 @@ function init(){
                 }
                 target_arrow = arrowsDown[kidxDown];
                 if(Math.abs(target_arrow.position.y - arrowDown.position.y) <= 3){
+                    arrowDown.material = greenTexture;
+                    setTimeout(function(){arrowDown.material= blackTexture},300);
                     puntuacion +=10;
                     flagsDown[kidxDown]=true;
                     kidxDown+=1;
                     scene.remove(target_arrow);
                 }else{
+                    arrowDown.material = redTexture;
+                    setTimeout(function(){arrowDown.material= blackTexture},300);
                     puntuacion -=5;
                 }
             }
@@ -242,7 +261,7 @@ function loadPunctuation(){
         var  textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
         text = new THREE.Mesh(textGeo , textMaterial);
         text.scale.set(0.5,0.5,0.5);
-        text.position.set(-27, 50 , -4);
+        text.position.set(-26, 40 , -4);
         scene.add(text);
     });
 }
@@ -366,7 +385,6 @@ function animateArrow(type, i){
 
 function loadSongArrows(){
     var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
-
     // Flechas definidas por tiempos en la canción
     // Left arrows
     flagsLeft = [];
@@ -554,6 +572,7 @@ function restartArrows(){
 function setupGui(){
     effectController = {
         startSong: function(){
+            puntuacion = 0;
             if(dancing!=null){
                 dancing.paused = false;
             }
@@ -630,7 +649,7 @@ function loadRoom(){
 
 
     let gltfLoader = new THREE.GLTFLoader(manager);
-    gltfLoader.load('proyecto_final/animation/michelle.glb', (michelle) =>{
+    gltfLoader.load('proyecto_final/animation/hiphop1.glb', (michelle) =>{
         michelle.scene.traverse(c => {
             c.castShadow = true;
             c.receiveShadow = true;
@@ -638,6 +657,7 @@ function loadRoom(){
         michelle.scene.rotation.y = Math.PI;
         michelle.scene.scale.set(5,5,5);
         michelle.scene.position.y = 1;
+        michelle.scene.position.x = 0.5;
         mixer = new THREE.AnimationMixer(michelle.scene);
         dancing = mixer.clipAction(michelle.animations[0]);
         dancing.play();
@@ -671,8 +691,8 @@ function loadRoom(){
         children.shift();
         hockey.scene.children = children;
         hockey.scene.scale.set(3.0, 3.0, 3.0);
-        hockey.scene.position.z = 15;
-        hockey.scene.position.x = -15;
+        hockey.scene.position.z = 5;
+        hockey.scene.position.x = 15;
         scene.add(hockey.scene);
     });
 
@@ -703,28 +723,6 @@ function loadRoom(){
         tragaP.scene.position.x = -20;
         tragaP.scene.position.y = 7.3;
         scene.add(tragaP.scene);
-    });
-
-    gltfLoader.load('proyecto_final/models/table/TableArcade.glb', (table) =>{
-        table.scene.traverse(c => {
-            c.castShadow = true;
-            c.receiveShadow = true;
-        });
-
-        let materialBase = new THREE.MeshPhongMaterial({color: 0xc60505, shininess:150});
-        table.scene.children[2].material = materialBase;
-        table.scene.children[8].material = materialBase;
-
-        let materialUp = new THREE.MeshLambertMaterial( { color: 'black'} );
-        table.scene.children[3].material = materialUp;
-
-        var children = table.scene.children;
-        children.pop();
-        table.scene.children = children;
-        table.scene.scale.set(2.5, 2.0, 2.5);
-        table.scene.position.x = 15;
-        table.scene.position.z = 12;
-        scene.add(table.scene);
     });
 
     scene.add(suelo);
