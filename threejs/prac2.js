@@ -12,7 +12,7 @@ function init(){
 
     // PerspectiveCamera(angulo vision, width y heigth pantalla, punto más cercano, punto más lejano)
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(50,250,150);
+    camera.position.set(50,300,150);
     camera.lookAt(0,100,0);
 }
 
@@ -21,84 +21,75 @@ function loadScene(){
 
     var material = new THREE.MeshBasicMaterial( {color: 0xffffff, wireframe: true} );
 
+    robot = new THREE.Object3D();
+
     //  Creando el suelo
     var geometria = new THREE.PlaneGeometry(1000,1000,10,10);
     var suelo = new THREE.Mesh(geometria, material);
     suelo.position.set(0, 0, 0);
-    suelo.rotation.x = Math.PI/2;
-    scene.add(suelo);
+    suelo.rotation.x = -Math.PI/2;
 
     // Creando la base del robot
     base = new THREE.Object3D();
     var cilindro = new THREE.CylinderGeometry( 50, 50, 15, 40 );
-    var base_obj = new THREE.Mesh( cilindro, material );
-    base.add(base_obj);
-
+    var base_obj = new THREE.Mesh( cilindro, material);
 
     //Creando el brazo
     brazo = new THREE.Object3D();
     //parte inferior del brazo
     var cilindro = new THREE.CylinderGeometry( 20, 20, 18, 40 );
-    var brazo_inferior = new THREE.Mesh( cilindro, material );
-    brazo_inferior.rotation.x = Math.PI/2;
-    brazo.add( brazo_inferior );
+    eje = new THREE.Mesh( cilindro, material );
+    eje.rotation.x = Math.PI/2;
 
     //parte intermedia del brazo
     var cubo = new THREE.CubeGeometry( 18, 120, 12);
-    var brazo_intermedio = new THREE.Mesh( cubo, material );
-    brazo_intermedio.position.set(0,60,0);
-    brazo.add( brazo_intermedio );
+    var esparrago = new THREE.Mesh( cubo, material );
+    esparrago.position.set(0,60,0);
 
     //parte superior del brazo
     var esfera = new THREE.SphereGeometry( 20, 15, 15);
-    var brazo_superior = new THREE.Mesh( esfera, material );
-    brazo_superior.position.set(0,120,0);
-    brazo.add( brazo_superior );
+    rotula = new THREE.Mesh( esfera, material );
+    rotula.position.set(0,120,0);
 
     // Creando el antebrazo
     antebrazo = new THREE.Object3D();
+    antebrazo.position.y = 120;
     //parte inferior del antebrazo
     var cilindro = new THREE.CylinderGeometry( 22, 22, 6, 40 );
-    var antebrazo_inferior = new THREE.Mesh( cilindro, material );
-    antebrazo_inferior.position.set(0,120,0);
-    antebrazo.add( antebrazo_inferior );
+    var disco = new THREE.Mesh( cilindro, material );
+    disco.position.set(0,0,0);
 
     //partes intermedias del antebrazo
     //nervio 1
     var cubo = new THREE.CubeGeometry(4, 80, 4);
     var nervio1 = new THREE.Mesh( cubo, material);
-    nervio1.position.set(8,160,0);
-    antebrazo.add( nervio1 );
+    nervio1.position.set(8,40,0);
 
     //nervio 2
     var cubo = new THREE.CubeGeometry(4, 80, 4);
     var nervio2 = new THREE.Mesh( cubo, material );
-    nervio2.position.set(-8,160,0);
-    antebrazo.add( nervio2 );
+    nervio2.position.set(-8,40,0);
 
     //nervio 3
     var cubo = new THREE.CubeGeometry(4, 80, 4);
     var nervio3 = new THREE.Mesh( cubo, material );
-    nervio3.position.set(0,160,8);
-    antebrazo.add( nervio3 );
+    nervio3.position.set(0,40,8);
 
     //nervio 4
     var cubo = new THREE.CubeGeometry(4, 80, 4);
     var nervio4 = new THREE.Mesh( cubo, material );
-    nervio4.position.set(0,160,-8);
-    antebrazo.add( nervio4 );
+    nervio4.position.set(0,40,-8);
 
-    var mano = new THREE.Object3D();
+    mano = new THREE.Object3D();
+    mano.position.set(0,80,0);
 
     //parte superior del antebrazo
     var cilindro = new THREE.CylinderGeometry( 15, 15, 40, 40 );
-    var antebrazo_superior = new THREE.Mesh( cilindro, material );
-    antebrazo_superior.position.set(0,200,0);
-    antebrazo_superior.rotation.x = Math.PI/2;
-    antebrazo.add( antebrazo_superior );
+    var palma = new THREE.Mesh( cilindro, material );
+    palma.position.set(0,0,0);
+    palma.rotation.x = Math.PI/2;
 
     // Añadir pinzas del robot
-    var mano = new THREE.Object3D();
     var geom = new THREE.Geometry();
     var vertices = [
         0,0,0,
@@ -150,25 +141,33 @@ function loadScene(){
         geom.faces.push(triangulo);
     }
 
+    geom.computeVertexNormals();
     pinzaIz = new THREE.Mesh( geom, material);
-    pinzaIz.position.set(0,190,18);
+    pinzaIz.position.set(0,-10,19);
     pinzaIz.rotation.y = Math.PI/2;
-    mano.add(pinzaIz);
-
     pinzaDe = new THREE.Mesh( geom, material);
-    pinzaDe.position.set(0,190,-18);
+    pinzaDe.position.set(0,-10,-15.5);
     pinzaDe.rotation.y = Math.PI/2;
-    mano.add(pinzaDe);
 
-    //  Añadir ejes x y  z
-    var helper = new THREE.AxesHelper(1000);
-    scene.add(helper);
-
-    antebrazo.add(mano);
-    brazo.add(antebrazo);
-    base.add(brazo);
-    robot.add(base);
+    // Añadir objetos al grafo de escena
+    scene.add(suelo);
     scene.add(robot);
+    robot.add(base);
+    base.add(base_obj);
+    base.add(brazo);
+    brazo.add(esparrago);
+    brazo.add(rotula);
+    brazo.add(antebrazo);
+    brazo.add(eje);
+    antebrazo.add(disco);
+    antebrazo.add(nervio1);
+    antebrazo.add(nervio2);
+    antebrazo.add(nervio3);
+    antebrazo.add(nervio4);
+    antebrazo.add(mano);
+    mano.add(pinzaIz);
+    mano.add(pinzaDe);
+    mano.add(palma);
 }
 
 function update(){
