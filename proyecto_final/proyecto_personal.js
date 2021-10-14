@@ -552,7 +552,7 @@ function loadSong(){
     if(audio.isPlaying){
         audio.stop();
     }
-    var stream = "proyecto_final/songs/darude_sandstorm.ogg"
+    var stream = "proyecto_final/songs/vexento _we_are_one.mp3"
     audio.context.suspend();
     audio.context.resume();
 	audio.crossOrigin = "anonymous";
@@ -562,7 +562,7 @@ function loadSong(){
 		audio.setBuffer(buffer);
 		audio.play();
         audio.source.onended = function() {
-            console.log('Darude sandstorm ended');
+            console.log('Song ended');
             clearTimeouts();
             if(dancing!=null){
                 dancing.paused=true;
