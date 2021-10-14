@@ -26,10 +26,10 @@ function init(){
     setMiniCamera();
 
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(25,300,200);
+    camera.position.set(200,230,200);
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-    cameraControls.target.set(0,0,0);
+    cameraControls.target.set(0,150,0);
     cameraControls.enableKeys = false;
     window.addEventListener('resize', updateAspectRatio);
 
@@ -53,12 +53,12 @@ function init(){
     });
 
     //Luces
-    let luzAmbiente = new THREE.AmbientLight( 0xffffff, 0.3 );
+    let luzAmbiente = new THREE.AmbientLight( 0xffffff, 0.4);
 
     let luzPuntual = new THREE.PointLight( 0xffffff, 0.3);
     luzPuntual.position.set( 0, 300, -10 );
 
-    let luzFocal = new THREE.SpotLight( 0xffffff, 0.2);
+    let luzFocal = new THREE.SpotLight( 0xffffff, 4);
     luzFocal.position.set( 150, 400, 0);
     luzFocal.target.position.set( 8, 100, 0 );
     luzFocal.angle = Math.PI/10;
@@ -99,8 +99,28 @@ function updateAspectRatio(){
 }
 
 function loadScene(){
+    var path = "images/";
+    var paredes = [path + "posx.jpg", path + "negx.jpg", path + "posy.jpg", path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"];
+    var mapaEntorno = new THREE.CubeTextureLoader().load(paredes);
+
+    var shader = THREE.ShaderLib.cube;
+    shader.uniforms.tCube.value = mapaEntorno;
+
+    var wallsMaterial = new THREE.ShaderMaterial({
+        fragmentShader: shader.fragmentShader,
+        vertexShader: shader.vertexShader,
+        uniforms: shader.uniforms,
+        depthWrite: false,
+        side: THREE.BackSide
+    });
+
+    var habitacion = new THREE.Mesh(new THREE.BoxGeometry(1000, 1000, 10000), wallsMaterial);
+    scene.add(habitacion);
+
+    //Crear la habitación con el material de las pareder
+    var room= new THREE.Mesh( new THREE.CubeGeometry(15, 15, 15), wallsMaterial);
+
     robot = new THREE.Object3D();
-    let path = "images/";
     let txsuelo = new THREE.TextureLoader().load( path + 'pisometalico_1024.jpg' );
     txsuelo.magfilter = THREE.LinearFilter;
     txsuelo.minfilter = THREE.LinearFilter;
@@ -135,10 +155,10 @@ function loadScene(){
     esparrago.position.set(0,60,0);
 
     //parte superior del brazo
-    let paredes = [ path+'posx.jpg', path+'negx.jpg',
+    let paredes2 = [ path+'posx.jpg', path+'negx.jpg',
                     path+'posy.jpg', path+'negy.jpg',
                     path+'posz.jpg', path+'negz.jpg' ];
-    let txmapaentorno = new THREE.CubeTextureLoader().load(paredes);
+    let txmapaentorno = new THREE.CubeTextureLoader().load(paredes2);
     let materialBrillante = new THREE.MeshPhongMaterial( {color: 'white', specular: 'white', shininess: 50, envMap: txmapaentorno } );
 
     var esfera = new THREE.SphereGeometry( 20, 15, 15);
@@ -236,16 +256,16 @@ function loadScene(){
         geom.faces.push(triangulo);
     }
 
-    var material = new THREE.MeshBasicMaterial({color: 0xffffff, side:THREE.DoubleSide});
+    var material = new THREE.MeshLambertMaterial({color: 0x474b4e, side:THREE.DoubleSide});
 
     geom.computeVertexNormals();
     pinzaIz = new THREE.Mesh( geom, material);
     pinzaIz.position.set(0,-10,19);
     pinzaIz.rotation.y = Math.PI/2;
-
     pinzaDe = new THREE.Mesh( geom, material);
-    pinzaDe.position.set(0,-10,-16);
+    pinzaDe.position.set(0,-10,-10);
     pinzaDe.rotation.y = Math.PI/2;
+
 
     // Configurar sombras
     suelo.receiveShadow = true;
@@ -290,9 +310,9 @@ function loadScene(){
     antebrazo.add(nervio3);
     antebrazo.add(nervio4);
     antebrazo.add(mano);
-    mano.add(palma);
     mano.add(pinzaIz);
     mano.add(pinzaDe);
+    mano.add(palma);
 }
 
 function setupGui(){
@@ -344,8 +364,8 @@ function update(){
     mano.rotation.z = effectController.giroPinza * Math.PI / 180;
 
     // Apertura/Cierre de la pinza sobre el eje Z de la mano)
-    pinzaIz.position.z = effectController.separacionPinza + 4;
-    pinzaDe.position.z = -effectController.separacionPinza - 1;
+    pinzaIz.position.z = effectController.separacionPinza + 4.5;
+    pinzaDe.position.z = -effectController.separacionPinza ;
 
     cameraControls.update();
 
