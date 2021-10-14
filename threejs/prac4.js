@@ -282,8 +282,8 @@ function update(){
     mano.rotation.z = effectController.giroPinza * Math.PI / 180;
 
     // Apertura/Cierre de la pinza sobre el eje Z de la mano)
-    pinzaIz.position.z = effectController.separacionPinza + 4;
-    pinzaDe.position.z = -effectController.separacionPinza - 1;
+    pinzaIz.position.z = effectController.separacionPinza + 4.5;
+    pinzaDe.position.z = -effectController.separacionPinza;
 
     cameraControls.update();
 
