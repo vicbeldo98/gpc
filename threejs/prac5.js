@@ -26,10 +26,10 @@ function init(){
     setMiniCamera();
 
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(200,230,200);
+    camera.position.set(50,300,150);
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-    cameraControls.target.set(0,150,0);
+    cameraControls.target.set(0,100,0);
     cameraControls.enableKeys = false;
     window.addEventListener('resize', updateAspectRatio);
 

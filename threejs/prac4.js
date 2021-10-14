@@ -24,10 +24,10 @@ function init(){
     setMiniCamera();
 
     camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 10000);
-    camera.position.set(25,300,200);
+    camera.position.set(50,300,150);
 
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-    cameraControls.target.set(0,0,0);
+    cameraControls.target.set(0,100,0);
     cameraControls.enableKeys = false;
     window.addEventListener('resize', updateAspectRatio);
 
@@ -84,18 +84,18 @@ function loadScene(){
 
     var material = new THREE.MeshBasicMaterial( {color: 0xffffff, wireframe: true} );
 
-    var floor_material = new THREE.MeshBasicMaterial( {color: 0xffffff, wireframe: true} );
+    robot = new THREE.Object3D();
 
     //  Creando el suelo
     var geometria = new THREE.PlaneGeometry(1000,1000,10,10);
-    var suelo = new THREE.Mesh(geometria, floor_material);
+    var suelo = new THREE.Mesh(geometria, material);
     suelo.position.set(0, 0, 0);
-    suelo.rotation.x = Math.PI/2;
+    suelo.rotation.x = -Math.PI/2;
 
     // Creando la base del robot
     base = new THREE.Object3D();
     var cilindro = new THREE.CylinderGeometry( 50, 50, 15, 40 );
-    var base_obj = new THREE.Mesh( cilindro, material );
+    var base_obj = new THREE.Mesh( cilindro, material);
 
     //Creando el brazo
     brazo = new THREE.Object3D();
@@ -204,17 +204,13 @@ function loadScene(){
         geom.faces.push(triangulo);
     }
 
+    geom.computeVertexNormals();
     pinzaIz = new THREE.Mesh( geom, material);
     pinzaIz.position.set(0,-10,19);
     pinzaIz.rotation.y = Math.PI/2;
-
     pinzaDe = new THREE.Mesh( geom, material);
-    pinzaDe.position.set(0,-10,-16);
+    pinzaDe.position.set(0,-10,-15.5);
     pinzaDe.rotation.y = Math.PI/2;
-
-    //  Añadir ejes x y  z
-    var helper = new THREE.AxesHelper(1000);
-    scene.add(helper);
 
     // Añadir objetos al grafo de escena
     scene.add(suelo);
@@ -232,9 +228,9 @@ function loadScene(){
     antebrazo.add(nervio3);
     antebrazo.add(nervio4);
     antebrazo.add(mano);
-    mano.add(palma);
     mano.add(pinzaIz);
     mano.add(pinzaDe);
+    mano.add(palma);
 }
 
 function setupGui(){
