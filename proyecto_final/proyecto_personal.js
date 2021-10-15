@@ -95,7 +95,7 @@ function init(){
     kidxUp = 0;
     kidxDown = 0;
     keyboard.domElement.addEventListener('keydown', function (event) {
-        if(!event.repeat & audio.isPlaying){
+        if(!event.repeat){
             if (keyboard.eventMatches(event, 'left')) {
                 if(flagsLeft[kidxLeft] == true){
                     kidxLeft=flagsLeft.findIndex(element => element === false);
@@ -114,7 +114,7 @@ function init(){
                     puntuacion -=5;
                 }
             }
-            if (keyboard.eventMatches(event, 'right')) {
+            else if (keyboard.eventMatches(event, 'right')) {
                 if(flagsRight[kidxRight] == true){
                     kidxRight=flagsRight.findIndex(element => element === false);
 
@@ -133,7 +133,7 @@ function init(){
                     puntuacion -=5;
                 }
             }
-            if (keyboard.eventMatches(event, 'up')) {
+            else if (keyboard.eventMatches(event, 'up')) {
                 if(flagsUp[kidxUp] == true){
                     kidxUp=flagsUp.findIndex(element => element === false);
                 }
@@ -151,7 +151,7 @@ function init(){
                     puntuacion -=5;
                 }
             }
-            if (keyboard.eventMatches(event, 'down')) {
+            else if (keyboard.eventMatches(event, 'down')) {
                 if(flagsDown[kidxDown] == true){
                     kidxDown = flagsDown.findIndex(element => element === false);
                 }
