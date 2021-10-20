@@ -15,6 +15,36 @@ let timeouts;
 let puntuacion_inicial = 0;
 let puntuacion;
 
+// sacado de https://stackoverflow.com/a/51086910 al darme cuenta de que con los timetouts había race conditions en la puntuación
+class Mutex {
+    constructor() {
+        this._lock = null;
+    }
+    isLocked() {
+        return this._lock != null;
+    }
+    _acquire() {
+        var release;
+        const lock = this._lock = new Promise(resolve => {
+            release = resolve;
+        });
+        return () => {
+            if (this._lock == lock) this._lock = null;
+            release();
+        };
+    }
+    acquireSync() {
+        if (this.isLocked()) throw new Error("still locked!");
+        return this._acquire();
+    }
+    acquireQueued() {
+        const q = Promise.resolve(this._lock).then(() => release);
+        const release = this._acquire(); // reserves the lock already, but it doesn't count
+        return q; // as acquired until the caller gets access to `release` through `q`
+    }
+}
+const mutex = new Mutex();
+
 // TEXTO DE PUNTUACIÓN
 let text;
 
@@ -94,7 +124,7 @@ function init(){
     kidxRight = 0;
     kidxUp = 0;
     kidxDown = 0;
-    keyboard.domElement.addEventListener('keydown', function (event) {
+    keyboard.domElement.addEventListener('keydown', async(event)=> {
         if(!event.repeat){
             if (keyboard.eventMatches(event, 'left')) {
                 if(flagsLeft[kidxLeft] == true){
@@ -104,14 +134,18 @@ function init(){
                 if(Math.abs(target_arrow.position.y - arrowLeft.position.y) <= 3){
                     arrowLeft.material = greenTexture;
                     let aux = setTimeout(function(){arrowLeft.material= blackTexture},300);
+                    const release = await mutex.acquireQueued();
                     puntuacion +=10;
+                    release();
                     flagsLeft[kidxLeft]=true;
                     kidxLeft+=1;
                     scene.remove(target_arrow);
                 }else{
                     arrowLeft.material = redTexture;
                     setTimeout(function(){arrowLeft.material= blackTexture},300);
+                    const release = await mutex.acquireQueued();
                     puntuacion -=5;
+                    release();
                 }
             }
             else if (keyboard.eventMatches(event, 'right')) {
@@ -123,14 +157,18 @@ function init(){
                 if(Math.abs(target_arrow.position.y - arrowRight.position.y) <= 3){
                     arrowRight.material = greenTexture;
                     setTimeout(function(){arrowRight.material= blackTexture},300);
+                    const release = await mutex.acquireQueued();
                     puntuacion +=10;
+                    release();
                     flagsRight[kidxRight]=true;
                     kidxRight+=1;
                     scene.remove(target_arrow);
                 } else{
                     arrowRight.material = redTexture;
                     setTimeout(function(){arrowRight.material= blackTexture},300);
+                    const release = await mutex.acquireQueued();
                     puntuacion -=5;
+                    release();
                 }
             }
             else if (keyboard.eventMatches(event, 'up')) {
@@ -141,14 +179,18 @@ function init(){
                 if(Math.abs(target_arrow.position.y - arrowUp.position.y) <= 3){
                     arrowUp.material = greenTexture;
                     setTimeout(function(){arrowUp.material= blackTexture},300);
+                    const release = await mutex.acquireQueued();
                     puntuacion +=10;
+                    release();
                     flagsUp[kidxUp]=true;
                     kidxUp+=1;
                     scene.remove(target_arrow);
                 } else{
                     arrowUp.material = redTexture;
                     setTimeout(function(){arrowUp.material= blackTexture},300);
+                    const release = await mutex.acquireQueued();
                     puntuacion -=5;
+                    release();
                 }
             }
             else if (keyboard.eventMatches(event, 'down')) {
@@ -159,14 +201,18 @@ function init(){
                 if(Math.abs(target_arrow.position.y - arrowDown.position.y) <= 3){
                     arrowDown.material = greenTexture;
                     setTimeout(function(){arrowDown.material= blackTexture},300);
+                    const release = await mutex.acquireQueued();
                     puntuacion +=10;
+                    release();
                     flagsDown[kidxDown]=true;
                     kidxDown+=1;
                     scene.remove(target_arrow);
                 }else{
                     arrowDown.material = redTexture;
                     setTimeout(function(){arrowDown.material= blackTexture},300);
+                    const release = await mutex.acquireQueued();
                     puntuacion -=5;
+                    release();
                 }
             }
         }
@@ -312,13 +358,15 @@ function animateArrow(type, i){
                 .easing( TWEEN.Easing.Linear.None )
                 .start();
 
-        animate.onComplete(function() {
+        animate.onComplete(async()=>{
             if(flagsLeft[idxLeft] == false){
                 let aux = arrowsLeft[idxLeft];
                 scene.remove(aux);
                 flagsLeft[idxLeft] = true;
                 idxLeft+=1;
+                const release = await mutex.acquireQueued();
                 puntuacion-=10;
+                release();
             }else{
                 idxLeft=flagsLeft.findIndex(element => element === false);
             }
@@ -332,13 +380,15 @@ function animateArrow(type, i){
 	                  .easing( TWEEN.Easing.Linear.None )
                       .start();
         
-        animate.onComplete( function() {
+        animate.onComplete(async()=>{
             if(flagsRight[idxRight] == false){
                 let aux = arrowsRight[idxRight];
                 scene.remove(aux);
                 flagsRight[idxRight] = true;
                 idxRight+=1;
+                const release = await mutex.acquireQueued();
                 puntuacion-=10;
+                release();
             }else{
                 idxRight=flagsRight.findIndex(element => element === false);
 
@@ -354,13 +404,15 @@ function animateArrow(type, i){
 	                  .easing( TWEEN.Easing.Linear.None )
                       .start();
         
-        animate.onComplete( function() {
+        animate.onComplete(async()=>{
             if(flagsUp[idxUp] == false){
                 let aux = arrowsUp[idxUp];
                 scene.remove(aux);
                 flagsUp[idxUp] = true;
                 idxUp+=1;
+                const release = await mutex.acquireQueued();
                 puntuacion-=10;
+                release();
             }else{
                 idxUp=flagsUp.findIndex(element => element === false);
             }
@@ -375,13 +427,15 @@ function animateArrow(type, i){
 	                  .easing( TWEEN.Easing.Linear.None )
                       .start();
         
-        animate.onComplete( function() {
+        animate.onComplete(async()=>{
             if(flagsDown[idxDown] == false){
                 let aux = arrowsDown[idxDown];
                 scene.remove(aux);
                 flagsDown[idxDown] = true;
                 idxDown+=1;
+                const release = await mutex.acquireQueued();
                 puntuacion-=10;
+                release();
             }else{
                 idxDown=flagsDown.findIndex(element => element === false);
             }
