@@ -365,7 +365,7 @@ function animateArrow(type, i){
                 flagsLeft[idxLeft] = true;
                 idxLeft+=1;
                 const release = await mutex.acquireQueued();
-                //puntuacion-=10;
+                puntuacion-=10;
                 release();
             }else{
                 idxLeft=flagsLeft.findIndex(element => element === false);
@@ -387,7 +387,7 @@ function animateArrow(type, i){
                 flagsRight[idxRight] = true;
                 idxRight+=1;
                 const release = await mutex.acquireQueued();
-                //puntuacion-=10;
+                puntuacion-=10;
                 release();
             }else{
                 idxRight=flagsRight.findIndex(element => element === false);
@@ -411,7 +411,7 @@ function animateArrow(type, i){
                 flagsUp[idxUp] = true;
                 idxUp+=1;
                 const release = await mutex.acquireQueued();
-                //puntuacion-=10;
+                puntuacion-=10;
                 release();
             }else{
                 idxUp=flagsUp.findIndex(element => element === false);
@@ -434,7 +434,7 @@ function animateArrow(type, i){
                 flagsDown[idxDown] = true;
                 idxDown+=1;
                 const release = await mutex.acquireQueued();
-                //puntuacion-=10;
+                puntuacion-=10;
                 release();
             }else{
                 idxDown=flagsDown.findIndex(element => element === false);
