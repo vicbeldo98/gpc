@@ -1,26 +1,26 @@
 // CONTROLES BÁSICOS
-var renderer, scene, camera, mini_camera, robot, cameraControls;
+let renderer, scene, camera, mini_camera, robot, cameraControls;
 
 // ANIMACIÓN DE FLECHAS
-var arrowLeft, arrowRight, arrowUp, arrowDown;
-var flagsLeft, flagsRight, flagsUp, flagsDown;
-var kidxLeft, kidxRight, kidxUp, kidxDown;
-var idxLeft, idxRight, idxUp, idxDown;
-var timesLeft, timesRight, timesUp, timesDown;
-var timeouts;
+let arrowLeft, arrowRight, arrowUp, arrowDown;
+let flagsLeft, flagsRight, flagsUp, flagsDown;
+let kidxLeft, kidxRight, kidxUp, kidxDown;
+let idxLeft, idxRight, idxUp, idxDown;
+let timesLeft, timesRight, timesUp, timesDown;
+let timeouts;
 
 
 
 // PUNTUACIÓN
-var puntuacion_inicial = 0;
-var puntuacion;
+let puntuacion_inicial = 0;
+let puntuacion;
 
 // TEXTO DE PUNTUACIÓN
-var text;
+let text;
 
 // CARGA DE MODELOS
-var manager;
-var loadingScreen = {
+let manager;
+let loadingScreen = {
     scene: new THREE.Scene(),
     camera: new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 100),
     box: new THREE.Mesh(
@@ -28,30 +28,30 @@ var loadingScreen = {
         new THREE.MeshBasicMaterial({color:'yellow'})
     )
 };
-var RESOURCES_LOADED = false;
+let RESOURCES_LOADED = false;
 
 // ANIMACIÓN DE MICHELLE
-var dancing;
-var mixer;
+let dancing;
+let mixer;
 
 // AUDIO
-var audio, audioLoader, volume;
+let audio, audioLoader, volume;
 
 // GUI
-var effectController;
+let effectController;
 
 // TIEMPO
-var antes = Date.now();
+let antes = Date.now();
 
 // TEXTURAS
-var blackTexture = new THREE.MeshPhongMaterial( {color: 'black', shininess:250} );
-var redTexture = new THREE.MeshPhongMaterial( {color: 'red', shininess:250} );
-var greenTexture = new THREE.MeshPhongMaterial( {color: 'green', shininess:250} );
+let blackTexture = new THREE.MeshPhongMaterial( {color: 'black', shininess:250} );
+let redTexture = new THREE.MeshPhongMaterial( {color: 'red', shininess:250} );
+let greenTexture = new THREE.MeshPhongMaterial( {color: 'green', shininess:250} );
 
 
 
 function init(){
-    // Inicializar variables
+    // Inicializar letiables
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.setClearColor ( new THREE.Color(0x000000), 1.0);
@@ -60,7 +60,7 @@ function init(){
     renderer.antialias = true;
     renderer.gammaOutput = true;
     renderer.gammaFactor = 2.2;
-    var aspectRatio = window.innerWidth / window.innerHeight;
+    let aspectRatio = window.innerWidth / window.innerHeight;
 
     // Cargar el administrador de carga
     manager = new THREE.LoadingManager();
@@ -174,7 +174,7 @@ function init(){
 
     // Musica
 	audioLoader = new THREE.AudioLoader(manager);
-	var listener = new THREE.AudioListener();
+	let listener = new THREE.AudioListener();
 	audio = new THREE.Audio(listener);
 
     // Luces
@@ -213,10 +213,15 @@ function init(){
 }
 
 function updateAspectRatio() {
-    renderer.setSize( window.innerWidth, window.innerHeight );
     let aspectRatio = window.innerWidth/window.innerHeight;
-    camera.aspect = aspectRatio;
-    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    if(RESOURCES_LOADED == false){
+        loadingScreen.camera.aspect = aspectRatio;
+        loadingScreen.camera.updateProjectionMatrix();
+    } else{
+        camera.aspect = aspectRatio;
+        camera.updateProjectionMatrix();
+    }
 }
 
 function update(){
@@ -229,7 +234,7 @@ function update(){
     audio.setVolume(effectController.volume);
 	TWEEN.update();
     renderer.domElement.focus();
-    var ahora = Date.now();
+    let ahora = Date.now();
     delta = (ahora - antes)/ 1000;
     antes = ahora;
     if(mixer!=null){
@@ -252,15 +257,15 @@ function render(){
 }
 
 function loadPunctuation(){
-    var fontLoader = new THREE.FontLoader(manager);
+    let fontLoader = new THREE.FontLoader(manager);
     fontLoader.load("fonts/helvetiker_regular.typeface.json",function(tex){ 
-        var  textGeo = new THREE.TextGeometry('Score:' + puntuacion, {
+        let  textGeo = new THREE.TextGeometry('Score:' + puntuacion, {
                 size: 2,
                 height: 0,
                 curveSegments: 6,
                 font: tex,
         });
-        var  textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+        let  textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
         text = new THREE.Mesh(textGeo , textMaterial);
         text.scale.set(0.5,0.5,0.5);
         text.position.set(-26, 40 , -4);
@@ -269,7 +274,7 @@ function loadPunctuation(){
 }
 
 function loadArrowPanel(){
-    var panel = new THREE.Object3D();
+    let panel = new THREE.Object3D();
     
     // Crear cuatro directivas
     arrowLeft = arrowGeometry(blackTexture);
@@ -309,7 +314,7 @@ function animateArrow(type, i){
 
         animate.onComplete(function() {
             if(flagsLeft[idxLeft] == false){
-                var aux = arrowsLeft[idxLeft];
+                let aux = arrowsLeft[idxLeft];
                 scene.remove(aux);
                 flagsLeft[idxLeft] = true;
                 idxLeft+=1;
@@ -319,7 +324,7 @@ function animateArrow(type, i){
             }
         });
     }else if(type =='right'){
-        var animate = new TWEEN.Tween( arrowsRight[i].position )
+        let animate = new TWEEN.Tween( arrowsRight[i].position )
                       .to( { x:[ 15],
 	                         y:[ 20],
 	                         z:[ -5]}, timesRight[i])
@@ -329,7 +334,7 @@ function animateArrow(type, i){
         
         animate.onComplete( function() {
             if(flagsRight[idxRight] == false){
-                var aux = arrowsRight[idxRight];
+                let aux = arrowsRight[idxRight];
                 scene.remove(aux);
                 flagsRight[idxRight] = true;
                 idxRight+=1;
@@ -340,8 +345,8 @@ function animateArrow(type, i){
             }
         });
     }else if(type=='up'){
-        var arrow_target = arrowsUp[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
+        let arrow_target = arrowsUp[i];
+        let animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[  -16],
 	                         y:[ 23],
 	                         z:[  -5]}, timesUp[i])
@@ -351,7 +356,7 @@ function animateArrow(type, i){
         
         animate.onComplete( function() {
             if(flagsUp[idxUp] == false){
-                var aux = arrowsUp[idxUp];
+                let aux = arrowsUp[idxUp];
                 scene.remove(aux);
                 flagsUp[idxUp] = true;
                 idxUp+=1;
@@ -361,8 +366,8 @@ function animateArrow(type, i){
             }
         });
     }else if(type=='down'){
-        var arrow_target = arrowsDown[i];
-        var animate = new TWEEN.Tween( arrow_target.position )
+        let arrow_target = arrowsDown[i];
+        let animate = new TWEEN.Tween( arrow_target.position )
                       .to( { x:[ -7],
 	                         y:[ 17],
 	                         z:[ -5]}, timesDown[i])
@@ -372,7 +377,7 @@ function animateArrow(type, i){
         
         animate.onComplete( function() {
             if(flagsDown[idxDown] == false){
-                var aux = arrowsDown[idxDown];
+                let aux = arrowsDown[idxDown];
                 scene.remove(aux);
                 flagsDown[idxDown] = true;
                 idxDown+=1;
@@ -386,14 +391,14 @@ function animateArrow(type, i){
 
 
 function loadSongArrows(){
-    var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
+    let material = new THREE.MeshBasicMaterial( {color: 0x000000} );
     // Flechas definidas por tiempos en la canción
     // Left arrows
     flagsLeft = [];
     arrowsLeft = [];
     timesLeft = [];
-    for(var i = 0;i< 100;i++){
-        var aux = arrowGeometry(material);
+    for(let i = 0;i< 100;i++){
+        let aux = arrowGeometry(material);
         aux.position.set(0, 70, -5);
         arrowsLeft.push(aux);
         flagsLeft.push(false);
@@ -405,8 +410,8 @@ function loadSongArrows(){
     flagsRight = [];
     arrowsRight = [];
     timesRight = [];
-    for(var i = 0;i< 100;i++){
-        var aux = arrowGeometry(material);
+    for(let i = 0;i< 100;i++){
+        let aux = arrowGeometry(material);
         aux.rotation.z = Math.PI;
         aux.position.set(15, 70, -5);
         arrowsRight.push(aux);
@@ -419,8 +424,8 @@ function loadSongArrows(){
     flagsUp = [];
     arrowsUp = [];
     timesUp = [];
-    for(var i = 0;i< 100;i++){
-        var aux = arrowGeometry(material);
+    for(let i = 0;i< 100;i++){
+        let aux = arrowGeometry(material);
         aux.rotation.z = - 90 * Math.PI / 180;
         aux.position.set(-16, 70, -5);
         arrowsUp.push(aux);
@@ -433,8 +438,8 @@ function loadSongArrows(){
     flagsDown = [];
     arrowsDown = [];
     timesDown = [];
-    for(var i = 0;i< 100;i++){
-        var aux = arrowGeometry(material);
+    for(let i = 0;i< 100;i++){
+        let aux = arrowGeometry(material);
         aux.rotation.z = 90 * Math.PI /180;
         aux.position.set(-7, 70, -5);
         arrowsDown.push(aux);
@@ -444,22 +449,22 @@ function loadSongArrows(){
     }
 
     // Add left arrows
-    for(var i = 0;i< 77;i++){
+    for(let i = 0;i< 77;i++){
        scene.add(arrowsLeft[i]);
     }
 
     // Add right arrows
-    for(var i = 0;i< 77;i++){
+    for(let i = 0;i< 77;i++){
         scene.add(arrowsRight[i]);
     }
 
     // Add up arrows
-    for(var i = 0;i< 77;i++){
+    for(let i = 0;i< 77;i++){
         scene.add(arrowsUp[i]);
     }
 
     // Add down arrows
-    for(var i = 0;i< 77;i++){
+    for(let i = 0;i< 77;i++){
         scene.add(arrowsDown[i]);
     }
 
@@ -474,9 +479,9 @@ function loadSongArrows(){
     //Left arrows
     let accumulated_time = 0;
     timeouts = [];
-    for(var i = 0; i< arrowsLeft.length; i++){
+    for(let i = 0; i< arrowsLeft.length; i++){
 
-        var aux = setTimeout(animateArrow.bind(null, 'left', i), accumulated_time);
+        let aux = setTimeout(animateArrow.bind(null, 'left', i), accumulated_time);
         timeouts.push(aux);
         accumulated_time += timesLeft[i] + Math.random()*3000;
     }
@@ -484,8 +489,8 @@ function loadSongArrows(){
 
      //Right arrows
     accumulated_time = 0;
-     for(var i = 0; i< arrowsRight.length; i++){
-        var aux = setTimeout(animateArrow.bind(null, 'right', i), accumulated_time);
+     for(let i = 0; i< arrowsRight.length; i++){
+        let aux = setTimeout(animateArrow.bind(null, 'right', i), accumulated_time);
         timeouts.push(aux);
         accumulated_time += timesRight[i] + Math.random()*3000;
     }
@@ -493,31 +498,31 @@ function loadSongArrows(){
 
      //Up arrows
     accumulated_time = 0;
-    for(var i = 0; i< arrowsUp.length; i++){
-        var aux = setTimeout(animateArrow.bind(null, 'up', i), accumulated_time);
+    for(let i = 0; i< arrowsUp.length; i++){
+        let aux = setTimeout(animateArrow.bind(null, 'up', i), accumulated_time);
         timeouts.push(aux);
         accumulated_time += timesUp[i] + Math.random()*3000;
     }
 
      //Down arrows
     accumulated_time = 0;
-    for(var i = 0; i< arrowsDown.length; i++){
-        var aux = setTimeout(animateArrow.bind(null, 'down', i), accumulated_time);
+    for(let i = 0; i< arrowsDown.length; i++){
+        let aux = setTimeout(animateArrow.bind(null, 'down', i), accumulated_time);
         timeouts.push(aux);
         accumulated_time += timesDown[i] + Math.random()*3000;
     }
 }
 
 function clearTimeouts(){
-    for(var i =0; i< timeouts.length; i++){
+    for(let i =0; i< timeouts.length; i++){
         clearTimeout(timeouts[i]);
     }
     timeouts = []
 }
 
 function arrowGeometry(material){
-    var geom = new THREE.Geometry();
-    var vertices = [
+    let geom = new THREE.Geometry();
+    let vertices = [
         0,0,0,
         2,2,0,
         2,1,0,
@@ -527,7 +532,7 @@ function arrowGeometry(material){
         5,-1,0,
     ]
 
-    var indexes = [
+    let indexes = [
         0,2,1,
         0,3,2,
         0,4,3,
@@ -535,13 +540,13 @@ function arrowGeometry(material){
         3,6,5
     ];
 
-    for(var i=0;i<vertices.length; i+=3){
-        var vertice = new THREE.Vector3(vertices[i],vertices[i+1], vertices[i+2]);
+    for(let i=0;i<vertices.length; i+=3){
+        let vertice = new THREE.Vector3(vertices[i],vertices[i+1], vertices[i+2]);
         geom.vertices.push(vertice);
     }
 
-    for(var i=0;i< indexes.length;i+=3){
-        var triangulo = new THREE.Face3(indexes[i], indexes[i+1], indexes[i+2]);
+    for(let i=0;i< indexes.length;i+=3){
+        let triangulo = new THREE.Face3(indexes[i], indexes[i+1], indexes[i+2]);
         geom.faces.push(triangulo);
     }
 
@@ -552,7 +557,7 @@ function loadSong(){
     if(audio.isPlaying){
         audio.stop();
     }
-    var stream = "proyecto_final/songs/vexento _we_are_one.mp3"
+    let stream = "proyecto_final/songs/vexento _we_are_one.mp3"
     audio.context.suspend();
     audio.context.resume();
 	audio.crossOrigin = "anonymous";
@@ -583,16 +588,16 @@ function loadSong(){
 
 function restartArrows(){
     TWEEN.removeAll();
-    for(var i=0; i<arrowsLeft.length;i++){
+    for(let i=0; i<arrowsLeft.length;i++){
         scene.remove(arrowsLeft[i]);
     }
-    for(var i=0; i<arrowsRight.length;i++){
+    for(let i=0; i<arrowsRight.length;i++){
         scene.remove(arrowsRight[i]);
     }
-    for(var i=0; i<arrowsUp.length;i++){
+    for(let i=0; i<arrowsUp.length;i++){
         scene.remove(arrowsUp[i]);
     }
-    for(var i=0; i<arrowsDown.length;i++){
+    for(let i=0; i<arrowsDown.length;i++){
         scene.remove(arrowsDown[i]);
     }
 }
@@ -642,8 +647,8 @@ function setupGui(){
         }
     }
 
-    var gui = new dat.GUI();
-    var carpeta = gui.addFolder("Controles");
+    let gui = new dat.GUI();
+    let carpeta = gui.addFolder("Controles");
     carpeta.add(effectController, "startSong").name("Empezar");
     carpeta.add(effectController, "volume",0.0,1.0,0.1).name("Volumen");
     carpeta.add(effectController, "stop").name("Parar");
@@ -713,7 +718,7 @@ function loadRoom(){
     txmachine.flipY = false;
     txmachine.encoding = THREE.sRGBEncoding;
     let lights_down = new THREE.TextureLoader(manager).load('proyecto_final/models/dance/DDR_Emission.png');
-    var material = new THREE.MeshStandardMaterial({color:"white", map:txmachine, emissive:lights_down, metalness:0});
+    let material = new THREE.MeshStandardMaterial({color:"white", map:txmachine, emissive:lights_down, metalness:0});
     gltfLoader.load('proyecto_final/models/dance/machine.gbl', (danceM) =>{
         danceM.scene.traverse(c => {
             c.castShadow = true;
@@ -731,7 +736,7 @@ function loadRoom(){
             c.castShadow = true;
             c.receiveShadow = true;
         });
-        var children = hockey.scene.children;
+        let children = hockey.scene.children;
         children.shift();
         hockey.scene.children = children;
         hockey.scene.scale.set(3.0, 3.0, 3.0);
@@ -745,7 +750,7 @@ function loadRoom(){
             c.castShadow = true;
             c.receiveShadow = true;
         });
-        var children = arcade.scene.children;
+        let children = arcade.scene.children;
         children.shift();
         arcade.scene.children = children;
         arcade.scene.rotation.y = -Math.PI;
